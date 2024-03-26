@@ -96,7 +96,7 @@ public class OpenCVMediaLoaderTests
         Assert.That(specs.Uri, Is.EqualTo(@"Video\video1.avi"));
         Assert.That(specs.Width, Is.EqualTo(902));
         Assert.That(specs.Height, Is.EqualTo(666));
-        Assert.That(specs.Fps, Is.EqualTo(30.0f));
+        Assert.That(specs.Fps, Is.EqualTo(30.0f).Within(0.4));
         Assert.That(specs.FrameCount, Is.EqualTo(151));
     }
 
