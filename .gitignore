@@ -10,3 +10,4 @@ aspnet-core/src/StreamSentinel.Migrator/Logs/Logs.txt
 aspnet-core/build/outputs/
 aspnet-core/docker/mvc/Mvc-Logs/
 
+*.user
