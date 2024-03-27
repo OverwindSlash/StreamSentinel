@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30709.64
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AFAA0841-BD93-466F-B8F4-FB4EEC86F1FC}"
 EndProject
@@ -21,15 +21,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamSentinel.Web.Core", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamSentinel.EntityFrameworkCore", "src\StreamSentinel.EntityFrameworkCore\StreamSentinel.EntityFrameworkCore.csproj", "{E0580562-F8F2-4EBB-B07A-ABFC6F2C314F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamSentinel.Domain", "src\StreamSentinel.Domain\StreamSentinel.Domain.csproj", "{0CC09D82-2C9D-4B7F-A7F4-BAD1C89D8EF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamSentinel.Domain", "src\StreamSentinel.Domain\StreamSentinel.Domain.csproj", "{0CC09D82-2C9D-4B7F-A7F4-BAD1C89D8EF3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{E5AA8350-B13D-479D-BA11-F3635B51B793}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaLoader.OpenCV", "src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj", "{C1E4F77D-CEA4-407A-B765-95CCC045C3C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaLoader.OpenCV", "src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj", "{C1E4F77D-CEA4-407A-B765-95CCC045C3C2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{C99815B5-AC5B-46D0-BDFB-4D70674C7BE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaLoader.Tests", "test\components\MediaLoader.Tests\MediaLoader.Tests.csproj", "{A7ECE89A-B633-45C8-A040-DFC26BE3F741}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaLoader.Tests", "test\components\MediaLoader.Tests\MediaLoader.Tests.csproj", "{A7ECE89A-B633-45C8-A040-DFC26BE3F741}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detector.YoloV5Onnx", "src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj", "{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectDetector.Tests", "test\components\ObjectDetector.Tests\ObjectDetector.Tests.csproj", "{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +81,14 @@ Global
 		{A7ECE89A-B633-45C8-A040-DFC26BE3F741}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7ECE89A-B633-45C8-A040-DFC26BE3F741}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7ECE89A-B633-45C8-A040-DFC26BE3F741}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +106,8 @@ Global
 		{C1E4F77D-CEA4-407A-B765-95CCC045C3C2} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 		{C99815B5-AC5B-46D0-BDFB-4D70674C7BE2} = {F10AA149-2626-486E-85BB-9CD5365F3016}
 		{A7ECE89A-B633-45C8-A040-DFC26BE3F741} = {C99815B5-AC5B-46D0-BDFB-4D70674C7BE2}
+		{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
+		{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C} = {C99815B5-AC5B-46D0-BDFB-4D70674C7BE2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A55C749-0BFF-4EFD-8499-12A2CB3B5B07}
