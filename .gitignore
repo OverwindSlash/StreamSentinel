@@ -11,3 +11,15 @@ aspnet-core/build/outputs/
 aspnet-core/docker/mvc/Mvc-Logs/
 
 *.user
+/src/components/Detector.YoloV4Native/Library/win/darknet.dll
+/src/components/Detector.YoloV4Native/Library/win/opencv_videoio_ffmpeg451_64.dll
+/src/components/Detector.YoloV4Native/Library/win/opencv_videoio_msmf451_64.dll
+/src/components/Detector.YoloV4Native/Library/win/opencv_videoio_msmf451_64d.dll
+/src/components/Detector.YoloV4Native/Library/win/opencv_world451.dll
+/src/components/Detector.YoloV4Native/Library/win/pthreadGC2.dll
+/src/components/Detector.YoloV4Native/Library/win/pthreadVC2.dll
+/src/components/Detector.YoloV4Native/Library/win/zlibwapi.dll
+/src/components/Detector.YoloV4Native/Model/yolov4/yolov4.cfg
+/src/components/Detector.YoloV4Native/Model/yolov4/yolov4.data
+/src/components/Detector.YoloV4Native/Model/yolov4/yolov4.names
+/src/components/Detector.YoloV4Native/Model/yolov4/yolov4.weights
