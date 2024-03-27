@@ -47,12 +47,14 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
 
                 while (_queue.Count > _maxCapacity && _queue.TryDequeue(out var head))
                 {
-                    if (head is IDisposable disposable)
-                    {
-                        disposable.Dispose();
-                    }
+                    CleanupItem(head);
                 }
             }
+        }
+
+        protected virtual void CleanupItem(T item)
+        {
+            
         }
 
         public T Dequeue()
@@ -100,6 +102,11 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
         {
             lock (_lockObject)
             {
+                foreach (var item in _queue)
+                {
+                    CleanupItem(item);
+                }
+
                 _queue.Clear();
             }
         }
