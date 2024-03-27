@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\components\Detector.YoloV4Native\Detector.YoloV4Native.csproj" />
     <ProjectReference Include="..\..\..\src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
   </ItemGroup>
 
@@ -26,7 +27,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Images\Pedestrian2K.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\Pedestrian4K.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\pl_000001.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Images\Traffic_001.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\Traffic_002.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

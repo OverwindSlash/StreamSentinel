@@ -1,55 +1,37 @@
-﻿using Detector.YoloV5Onnx;
+﻿using Detector.YoloV4Native;
 using OpenCvSharp;
 using StreamSentinel.Entities.AnalysisEngine;
 using System.Diagnostics;
 
 namespace ObjectDetector.Tests
 {
-    public class YoloV5OnnxDetectorTests
+    public class YoloV4NativeDetectorTests : IDisposable
     {
-        private string ModelPath = "Models/yolov5m.onnx";
-        private readonly YoloV5OnnxDetector _detector;
+        private const string ConfigPath = @"Model/yolov4";
+        private readonly YoloV4NativeDetector _detector;
 
-        public YoloV5OnnxDetectorTests()
+        public YoloV4NativeDetectorTests()
         {
-            _detector = new YoloV5OnnxDetector();
+            _detector = new YoloV4NativeDetector();
 
             _detector.PrepareEnv();
             _detector.Init(new Dictionary<string, string>()
             {
-                {"model_path", ModelPath},
-                {"use_cuda", "true"}
+                { "config_path", ConfigPath }
             });
+        }
 
-            // Avoid first time-consuming call in test cases.
-            using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
-            _detector.Detect(mat, 0.3F);
+        public void Dispose()
+        {
+            _detector.Close();
+            _detector.CleanupEnv();
         }
 
         [Test]
-        public void TestDetectMat()
+        public void TestInit()
         {
-            using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
-
-            var stopwatch = Stopwatch.StartNew();
-            var items = _detector.Detect(mat, 0.3F);
-            stopwatch.Stop();
-            Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
-
-            //ShowResultImage(items, mat);
-
-            Assert.That(items.Count, Is.EqualTo(18));
-        }
-
-        private static void ShowResultImage(List<BoundingBox> items, Mat mat)
-        {
-            foreach (BoundingBox item in items)
-            {
-                mat.PutText(item.Label, new Point(item.X, item.Y), HersheyFonts.HersheyPlain, 1.0, Scalar.Aqua);
-                mat.Rectangle(new Point(item.X, item.Y), new Point(item.X + item.Width, item.Y + item.Height), Scalar.Aqua);
-            }
-
-            Window.ShowImages(mat);
+            Assert.That(_detector.CudaEnv.CudaExists, Is.EqualTo(true));
+            Assert.That(_detector.CudaEnv.CudnnExists, Is.EqualTo(true));
         }
 
         [Test]
@@ -59,14 +41,45 @@ namespace ObjectDetector.Tests
 
             var imageData = mat.ToBytes();
 
+            _detector.Detect(imageData, 0.3F).ToList();
+
             var stopwatch = Stopwatch.StartNew();
             var items = _detector.Detect(imageData, 0.3F).ToList();
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
-
             Assert.That(items.Count, Is.EqualTo(18));
+
+            //ShowResultImage(items, mat);
+        }
+
+        private static void ShowResultImage(List<BoundingBox> items, Mat mat)
+        {
+            foreach (BoundingBox item in items)
+            {
+                mat.PutText(item.Label, new Point(item.X, item.Y), HersheyFonts.HersheyPlain, 1.0, Scalar.Aqua);
+                mat.Rectangle(new Point(item.X, item.Y), new Point(item.X + item.Width, item.Y + item.Height),
+                    Scalar.Aqua);
+            }
+
+            Window.ShowImages(mat);
+        }
+
+        [Test]
+        public void TestDetectMatPtr()
+        {
+            using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
+
+            _detector.Detect(mat, 0.7F).ToList();
+
+            var stopwatch = Stopwatch.StartNew();
+            var items = _detector.Detect(mat, 0.7F).ToList();
+            stopwatch.Stop();
+            Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
+
+            Assert.That(items.Count, Is.EqualTo(14));
+
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -79,9 +92,9 @@ namespace ObjectDetector.Tests
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
+            Assert.That(items.Count, Is.EqualTo(11));
 
-            Assert.That(items.Count, Is.EqualTo(9));
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -94,9 +107,9 @@ namespace ObjectDetector.Tests
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
+            Assert.That(items.Count, Is.EqualTo(11));
 
-            Assert.That(items.Count, Is.EqualTo(9));
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -109,9 +122,9 @@ namespace ObjectDetector.Tests
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
+            Assert.That(items.Count, Is.EqualTo(11));
 
-            Assert.That(items.Count, Is.EqualTo(9));
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -124,9 +137,9 @@ namespace ObjectDetector.Tests
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
+            Assert.That(items.Count, Is.EqualTo(11));
 
-            Assert.That(items.Count, Is.EqualTo(9));
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -135,13 +148,13 @@ namespace ObjectDetector.Tests
             using var mat = new Mat("Images/Traffic_002.jpg", ImreadModes.Color);
 
             var stopwatch = Stopwatch.StartNew();
-            var items = _detector.Detect(mat, 0.3F).ToList();
+            var items = _detector.Detect(mat, 0.6F).ToList();
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
+            Assert.That(items.Count, Is.EqualTo(10));
 
-            Assert.That(items.Count, Is.EqualTo(8));
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -150,13 +163,13 @@ namespace ObjectDetector.Tests
             using var mat = new Mat("Images/pl_000001.jpg", ImreadModes.Color);
 
             var stopwatch = Stopwatch.StartNew();
-            var items = _detector.Detect(mat, 0.3F).ToList();
+            var items = _detector.Detect(mat, 0.6F).ToList();
             stopwatch.Stop();
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds}ms");
 
-            //ShowResultImage(items, mat);
+            Assert.That(items.Count, Is.EqualTo(8));
 
-            Assert.That(items.Count, Is.EqualTo(10));
+            //ShowResultImage(items, mat);
         }
 
         [Test]
@@ -169,6 +182,7 @@ namespace ObjectDetector.Tests
             {
                 var items = _detector.Detect(mat, 0.6F).ToList();
             }
+
             stopwatch.Stop();
 
             Console.WriteLine($"detection elapse: {stopwatch.ElapsedMilliseconds / 10}ms");

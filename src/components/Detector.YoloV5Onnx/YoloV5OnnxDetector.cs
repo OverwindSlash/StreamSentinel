@@ -1,9 +1,10 @@
 ﻿using Detector.YoloV5Onnx.Models;
 using Microsoft.ML.OnnxRuntime;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Entities.AnalysisEngine;
-using System.Diagnostics;
+using System.Drawing;
 
 namespace Detector.YoloV5Onnx
 {
@@ -14,7 +15,7 @@ namespace Detector.YoloV5Onnx
 
         public void PrepareEnv(Dictionary<string, string>? envParam = null)
         {
-            
+
         }
 
         public void Init(Dictionary<string, string>? initParam = null)
@@ -34,6 +35,12 @@ namespace Detector.YoloV5Onnx
             }
 
             _predictor = new YoloPredictor<Yolo640v5>(File.ReadAllBytes(modelPath), option);
+
+            // _detectionEnabledTypes.AddRange(new DetectionObjectType[]
+            // {
+            //     DetectionObjectType.Car,
+            //     DetectionObjectType.Person
+            // });
         }
 
         public int GetClassNumber()
@@ -43,17 +50,16 @@ namespace Detector.YoloV5Onnx
 
         public List<BoundingBox> Detect(Mat image, float thresh = 0.5f)
         {
-            var stopwatch = Stopwatch.StartNew();
-            YoloPrediction[] detectedObjects = _predictor.Predict(
-                image, thresh, new DetectionObjectType[]
-                {
-                    DetectionObjectType.Car,
-                    DetectionObjectType.Person
-                }).ToArray();
+            Bitmap bitmap = image.ToBitmap();
 
-            stopwatch.Stop();
-            Console.WriteLine($"real detection elapse: {stopwatch.ElapsedMilliseconds}ms");
+            YoloPrediction[] detectedObjects = _predictor.Predict(bitmap, thresh,
+                _detectionEnabledTypes.ToArray()).ToArray();
 
+            return GenerateBoundingBoxes(detectedObjects);
+        }
+
+        private static List<BoundingBox> GenerateBoundingBoxes(YoloPrediction[] detectedObjects)
+        {
             var boundingBoxes = new List<BoundingBox>();
             foreach (var prediction in detectedObjects)
             {
@@ -78,12 +84,24 @@ namespace Detector.YoloV5Onnx
 
         public List<BoundingBox> Detect(byte[] imageData, float thresh = 0.5f)
         {
-            throw new NotImplementedException();
+            using MemoryStream stream = new MemoryStream(imageData);
+
+            Bitmap bitmap = new Bitmap(stream);
+
+            YoloPrediction[] detectedObjects = _predictor.Predict(bitmap, thresh,
+                _detectionEnabledTypes.ToArray()).ToArray();
+
+            return GenerateBoundingBoxes(detectedObjects);
         }
 
         public List<BoundingBox> Detect(string imageFile, float thresh = 0.5f)
         {
-            throw new NotImplementedException();
+            Bitmap bitmap = new Bitmap(imageFile);
+
+            YoloPrediction[] detectedObjects = _predictor.Predict(bitmap, thresh,
+                _detectionEnabledTypes.ToArray()).ToArray();
+
+            return GenerateBoundingBoxes(detectedObjects);
         }
 
         public void Close()

@@ -2,9 +2,6 @@
 using Detector.YoloV5Onnx.Utils;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -23,19 +20,14 @@ namespace Detector.YoloV5Onnx
             _inferenceSession = new InferenceSession(model, sessionOptions ?? new SessionOptions());
         }
 
-        public IReadOnlyList<YoloPrediction> Predict(Mat image, float targetConfidence, params DetectionObjectType[] targetDetectionTypes)
+        public IReadOnlyList<YoloPrediction> Predict(Bitmap image, float targetConfidence, params DetectionObjectType[] targetDetectionTypes)
         {
-            Bitmap original = image.ToBitmap();
+            Bitmap resized = image;
 
-            Bitmap resized = original;
-
-            var stopwatch = Stopwatch.StartNew();
-            if (original.Width != _yoloModel.Width || original.Height != _yoloModel.Height)
+            if (image.Width != _yoloModel.Width || image.Height != _yoloModel.Height)
             {
-                resized = ResizeBitmap(original);
+                resized = ResizeBitmap(image);
             }
-            stopwatch.Stop();
-            Console.WriteLine($"Resize time:{stopwatch.ElapsedMilliseconds}");
 
             List<NamedOnnxValue> inputs = new List<NamedOnnxValue>
             {
@@ -44,7 +36,7 @@ namespace Detector.YoloV5Onnx
 
             IDisposableReadOnlyCollection<DisposableNamedOnnxValue> onnxOutput = _inferenceSession.Run(inputs, _yoloModel.Outputs);
             List<YoloPrediction> predictions = Suppress(ParseOutput(onnxOutput.First().Value as DenseTensor<float>,
-                targetConfidence, original, targetDetectionTypes));
+                targetConfidence, image, targetDetectionTypes));
 
             onnxOutput.Dispose();
 
