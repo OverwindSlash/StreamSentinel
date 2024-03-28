@@ -11,12 +11,9 @@ namespace StreamSentinel.DataStructures
             
         }
 
-        protected override void CleanupItem(Frame item)
+        protected override void CleanupItem(Frame expiredFrame)
         {
-            if (item is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
+            expiredFrame.Dispose();
         }
     }
 }

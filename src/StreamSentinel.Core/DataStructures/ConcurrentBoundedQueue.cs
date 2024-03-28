@@ -13,14 +13,16 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
         private readonly ConcurrentQueue<T> _queue = new();
         private readonly object _lockObject = new();
         private readonly int _maxCapacity;
+        private readonly Action<T> _cleanup;
         private int _maxOccupied;
 
-        public ConcurrentBoundedQueue(int maxCapacity = DefaultMaxCapacity)
+        public ConcurrentBoundedQueue(int maxCapacity = DefaultMaxCapacity, Action<T> cleanup = null)
         {
             if (maxCapacity <= 0)
-                throw new ArgumentException("Maximum capacity must be greater than zero.");
+                throw new ArgumentException("ConcurrentBoundedQueue maximum capacity must be greater than zero.");
 
             _maxCapacity = maxCapacity;
+            _cleanup = cleanup;
         }
 
         public int MaxCapacity => _maxCapacity;
@@ -52,9 +54,12 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
             }
         }
 
-        protected virtual void CleanupItem(T item)
+        protected virtual void CleanupItem(T expiredFrame)
         {
-            
+            if (_cleanup != null)
+            {
+                _cleanup(expiredFrame);
+            }
         }
 
         public T Dequeue()
