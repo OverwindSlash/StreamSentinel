@@ -7,7 +7,7 @@ namespace ObjectDetector.Tests
 {
     public class YoloV4NativeDetectorTests : IDisposable
     {
-        private const string ConfigPath = @"Model/yolov4";
+        private const string ConfigPath = @"Models/yolov4";
         private readonly YoloV4NativeDetector _detector;
 
         public YoloV4NativeDetectorTests()
