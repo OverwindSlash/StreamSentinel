@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using NSubstitute;
+﻿using NSubstitute;
 using OpenCvSharp;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;
+using System.Diagnostics;
 
 namespace StreamSentinel.Core.Tests
 {

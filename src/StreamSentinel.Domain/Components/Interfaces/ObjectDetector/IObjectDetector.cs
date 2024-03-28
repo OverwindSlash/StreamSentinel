@@ -1,10 +1,9 @@
 ﻿using OpenCvSharp;
-using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Entities.AnalysisEngine;
 
 namespace StreamSentinel.Components.Interfaces.ObjectDetector
 {
-    public interface IObjectDetector : IAnalysisHandler, IDisposable
+    public interface IObjectDetector : IDisposable
     {
         void PrepareEnv(Dictionary<string, string>? envParam = null);
         void Init(Dictionary<string, string>? initParam = null);

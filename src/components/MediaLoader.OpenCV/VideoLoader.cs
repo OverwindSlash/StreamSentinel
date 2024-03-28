@@ -16,7 +16,7 @@ public class VideoLoader : IVideoLoader, IDisposable
     private long _index;
 
     public VideoLoader()
-    : this("tempId", 30)
+    : this("tempId", 100)
     { }
 
     public VideoLoader(string deviceId, int bufferSize)

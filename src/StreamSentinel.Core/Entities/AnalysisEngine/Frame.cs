@@ -28,6 +28,24 @@ public class Frame : IDisposable
         DetectedObjects = new List<DetectedObject>();
     }
 
+    public void AddBoundingBoxes(List<BoundingBox> boundingBoxes)
+    {
+        foreach (var boundingBox in boundingBoxes)
+        {
+            var detectedObject = new DetectedObject()
+            {
+                DeviceId = DeviceId,
+                FrameId = FrameId,
+                TimeStamp = TimeStamp,
+                Bbox = boundingBox,
+                IsUnderAnalysis = true,
+                Snapshot = null
+            };
+
+            DetectedObjects.Add(detectedObject);
+        }
+    }
+
     public void Dispose()
     {
         Scene?.Dispose();

@@ -1,5 +1,4 @@
 ﻿using NSubstitute;
-using NSubstitute.Core.Arguments;
 using OpenCvSharp;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;

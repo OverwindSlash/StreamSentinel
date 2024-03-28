@@ -7,7 +7,7 @@ namespace ObjectDetector.Tests
 {
     public class YoloV5OnnxDetectorTests
     {
-        private string ModelPath = "Models/yolov5m.onnx";
+        private string ModelPath = @"Models/yolov5m.onnx";
         private readonly YoloV5OnnxDetector _detector;
 
         public YoloV5OnnxDetectorTests()
@@ -21,9 +21,9 @@ namespace ObjectDetector.Tests
                 {"use_cuda", "true"}
             });
 
-            // Avoid first time-consuming call in test cases.
-            using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
-            _detector.Detect(mat, 0.3F);
+            // // Avoid first time-consuming call in test cases.
+            // using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
+            // _detector.Detect(mat, 0.3F);
         }
 
         [Test]

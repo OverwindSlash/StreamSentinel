@@ -41,6 +41,10 @@ namespace Detector.YoloV5Onnx
             //     DetectionObjectType.Car,
             //     DetectionObjectType.Person
             // });
+
+            // Avoid first time-consuming call in test cases.
+            using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
+            Detect(mat, 0.3F);
         }
 
         public int GetClassNumber()
