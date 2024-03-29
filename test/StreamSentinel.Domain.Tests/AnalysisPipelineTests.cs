@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
 using StreamSentinel.Pipeline;
 
 namespace StreamSentinel.Domain.Tests
@@ -12,7 +8,11 @@ namespace StreamSentinel.Domain.Tests
         [Test]
         public void TestCreatePipeline()
         {
-            var pipeline = new AnalysisPipeline();
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("settings.json", true, true)
+                .Build();
+
+            var pipeline = new AnalysisPipeline(config);
 
             pipeline.Run();
         }
