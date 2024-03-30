@@ -7,5 +7,6 @@
         public string[] Parameters { get; set; }
         public string ModelPath { get; set; }
         public bool UseCuda { get; set; }
+        public float Thresh { get; set; }
     }
 }

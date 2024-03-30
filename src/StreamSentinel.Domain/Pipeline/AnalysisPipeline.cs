@@ -7,8 +7,8 @@ using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Components.Interfaces.ObjectTracker;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;
+using StreamSentinel.Entities.Events;
 using StreamSentinel.Pipeline.Settings;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace StreamSentinel.Pipeline
@@ -24,6 +24,7 @@ namespace StreamSentinel.Pipeline
         private readonly MediaLoaderSettings _mediaLoaderSettings;
         private readonly DetectorSettings _detectorSettings;
         private readonly TrackerSettings _trackerSettings;
+        private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
 
         private readonly ObservableSlideWindow _slideWindow;
         private readonly VideoFrameBuffer _analyzedFrameBuffer;
@@ -32,10 +33,14 @@ namespace StreamSentinel.Pipeline
         private IObjectDetector _objectDetector;
         private IObjectTracker _objectTracker;
         private List<IAnalysisHandler> _analysisHandlers;
+        
 
         public AnalysisPipeline(IConfiguration config)
         {
             _pipeLineSettings = config.GetSection("Pipeline").Get<PipelineSettings>();
+
+            _slideWindow = new ObservableSlideWindow(DefaultFrameLifeTime);
+            _analyzedFrameBuffer = new VideoFrameBuffer(DefaultFrameLifeTime);
 
             _services = new ServiceCollection();
 
@@ -56,10 +61,16 @@ namespace StreamSentinel.Pipeline
                 new object?[] { float.Parse(_trackerSettings.Parameters[0]), int.Parse(_trackerSettings.Parameters[1])});
             _services.AddTransient<IObjectTracker>(sp => tracker);
 
-            _provider = _services.BuildServiceProvider();
+            _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
+            foreach (var setting in _analysisHandlerSettings)
+            {
+                var handler = CreateInstance<IAnalysisHandler>(setting.AssemblyFile, setting.FullQualifiedClassName);
+                _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)handler);
+                _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)handler);
+                _services.AddTransient<IAnalysisHandler>(sp => handler);
+            }
 
-            _slideWindow = new ObservableSlideWindow(DefaultFrameLifeTime);
-            _analyzedFrameBuffer = new VideoFrameBuffer(DefaultFrameLifeTime);
+            _provider = _services.BuildServiceProvider();
         }
 
         private static T CreateInstance<T>(string assemblyFile, string fullQualifiedClassName, object?[] parameters = null)
@@ -93,14 +104,14 @@ namespace StreamSentinel.Pipeline
 
             _objectTracker = _provider.GetService<IObjectTracker>();
 
-            _analysisHandlers = new List<IAnalysisHandler>();
+            _analysisHandlers = _provider.GetServices<IAnalysisHandler>().ToList();
 
             var analysisTask = Task.Run(() =>
             {
                 while (_mediaLoader.BufferedFrameCount != 0 || _mediaLoader.IsOpened)
                 {
                     var frame = _mediaLoader.RetrieveFrame();
-                    frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene));
+                    frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
                     var analyzedFrame = Analyze(frame);
                     PushAanlysisResults(analyzedFrame);
@@ -109,7 +120,7 @@ namespace StreamSentinel.Pipeline
 
             var videoTask = Task.Run(() =>
             {
-                _mediaLoader.Play();
+                _mediaLoader.Play(_mediaLoaderSettings.VideoStride);
             });
 
             Task.WaitAll(analysisTask, videoTask);
@@ -133,14 +144,14 @@ namespace StreamSentinel.Pipeline
         {
             _analyzedFrameBuffer.Enqueue(analyzedFrame);
 
-            string detections = string.Empty;
-            var groups = analyzedFrame.DetectedObjects.GroupBy(obj => obj.Label);
-            foreach (var group in groups)
-            {
-                detections += group.Key.ToString() + ":" + group.Count().ToString() + "; ";
-            }
-            
-            Trace.WriteLine($"FrameId: {analyzedFrame.FrameId}, {detections}");
+            // string detections = string.Empty;
+            // var groups = analyzedFrame.DetectedObjects.GroupBy(obj => obj.Label);
+            // foreach (var group in groups)
+            // {
+            //     detections += group.Key.ToString() + ":" + group.Count().ToString() + "; ";
+            // }
+            //
+            // Trace.WriteLine($"FrameId: {analyzedFrame.FrameId}, {detections}");
 
             // Debug Display
             foreach (var detectedObject in analyzedFrame.DetectedObjects)
@@ -152,10 +163,10 @@ namespace StreamSentinel.Pipeline
                 image.Rectangle(new Point(bbox.X, bbox.Y), new Point(bbox.X + bbox.Width, bbox.Y + bbox.Height), Scalar.Red);
 
                 // Display id.
-                image.PutText(bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.White);
+                image.PutText(bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            Cv2.ImShow("test", analyzedFrame.Scene);
+            Cv2.ImShow("test", analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             Cv2.WaitKey(1);
         }
     }

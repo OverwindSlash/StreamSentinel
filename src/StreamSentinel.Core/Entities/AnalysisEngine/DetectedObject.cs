@@ -17,11 +17,20 @@ public class DetectedObject : IDisposable
     public int LabelId => Bbox.LabelId;
     public string Label => Bbox.Label;
     public long TrackingId => Bbox.TrackingId;
+    public float Confidence => Bbox.Confidence;
 
     public Mat Snapshot { get; set; }
 
     public bool IsUnderAnalysis { get; set; }
 
+    [JsonIgnore]
+    public int X => Bbox.X;
+    [JsonIgnore]
+    public int Y => Bbox.Y;
+    [JsonIgnore]
+    public int Width => Bbox.Width;
+    [JsonIgnore]
+    public int Height => Bbox.Height;
     [JsonIgnore]
     public int CenterX => Bbox.CenterX;
     [JsonIgnore]
