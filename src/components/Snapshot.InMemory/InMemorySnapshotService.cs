@@ -1,9 +1,8 @@
 ﻿using OpenCvSharp;
 using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Entities.AnalysisEngine;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using StreamSentinel.Entities.Events;
+using System.Collections.Concurrent;
 
 namespace Snapshot.InMemory
 {
@@ -12,15 +11,28 @@ namespace Snapshot.InMemory
         // frameId -> Scene
         private readonly ConcurrentDictionary<long, Mat> _scenesOfFrame;
 
-        // object snapshot list by confidence -> (confidence, objectMat)
-        private readonly ConcurrentDictionary<string, SortedList<float, Mat>> _snapshotsOfObject;
+        // object snapshot list by factor -> (factor, objectMat)
+        private readonly ConcurrentDictionary<string, SortedList<float, Mat>> _snapshotsByConfidence;
 
+        private string _snapshotsDir = "Snapshots";
         private int _maxObjectSnapshots = 10;
+        private int _minSnapshotWidth = 40;
+        private int _maxSnapshotHeight = 40;
 
-        public InMemorySnapshotService()
+        public InMemorySnapshotService(Dictionary<string, string> preferences)
         {
             _scenesOfFrame = new ConcurrentDictionary<long, Mat>();
-            _snapshotsOfObject = new ConcurrentDictionary<string, SortedList<float, Mat>>();
+            _snapshotsByConfidence = new ConcurrentDictionary<string, SortedList<float, Mat>>();
+
+            _snapshotsDir = preferences["SnapshotsDir"];
+            _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
+            _minSnapshotWidth = int.Parse(preferences["MinSnapshotWidth"]);
+            _maxSnapshotHeight = int.Parse(preferences["MinSnapshotHeight"]);
+            
+            if (Directory.Exists(_snapshotsDir))
+            {
+                Directory.CreateDirectory(_snapshotsDir);
+            }
         }
 
         public AnalysisResult Analyze(Frame frame)
@@ -44,20 +56,24 @@ namespace Snapshot.InMemory
             foreach (var obj in frame.DetectedObjects)
             {
                 Mat objSnapshot = frame.Scene.SubMat(new Rect(obj.X, obj.Y, obj.Width, obj.Height)).Clone();
-                //AddSnapshotOfObjectById(obj.Id, obj.Confidence, objSnapshot);
-                AddSnapshotOfObjectById(obj.Id, obj.Width, objSnapshot);
+                AddSnapshotOfObjectById(obj.Id, CalculateFactor(obj), objSnapshot);
             }
+        }
+
+        private float CalculateFactor(DetectedObject obj)
+        {
+            // Area as order factor.
+            return obj.Width * obj.Height;
         }
 
         private void AddSnapshotOfObjectById(string id, float confidence, Mat snapshot)
         {
-            if (!_snapshotsOfObject.ContainsKey(id))
+            if (!_snapshotsByConfidence.ContainsKey(id))
             {
-                _snapshotsOfObject.TryAdd(id, new SortedList<float, Mat>());
+                _snapshotsByConfidence.TryAdd(id, new SortedList<float, Mat>());
             }
 
-            SortedList<float, Mat> snapshotsById = _snapshotsOfObject[id];
-
+            SortedList<float, Mat> snapshotsById = _snapshotsByConfidence[id];
             if (!snapshotsById.ContainsKey(confidence))
             {
                 snapshotsById.Add(confidence, snapshot);
@@ -95,12 +111,12 @@ namespace Snapshot.InMemory
 
         public SortedList<float, Mat> GetObjectSnapshotsByObjectId(string id)
         {
-            if (!_snapshotsOfObject.ContainsKey(id))
+            if (!_snapshotsByConfidence.ContainsKey(id))
             {
                 return new SortedList<float, Mat>();
             }
 
-            return _snapshotsOfObject[id];
+            return _snapshotsByConfidence[id];
         }
 
         #region Observer Handlers
@@ -119,7 +135,6 @@ namespace Snapshot.InMemory
             Task.Run(() =>
             {
                 ReleaseSceneByFrameId(value.FrameId);
-                //Trace.WriteLine($"Frame:{value.FrameId} snapshot cleaned.");
             });
         }
 
@@ -148,40 +163,43 @@ namespace Snapshot.InMemory
             Task.Run(() =>
             {
                 ReleaseSnapshotsByObjectId(value.Id);
-                Trace.WriteLine($"Object:{value.Id} snapshot cleaned.");
             });
         }
 
         private void ReleaseSnapshotsByObjectId(string id)
         {
-            if (!_snapshotsOfObject.ContainsKey(id))
+            if (!_snapshotsByConfidence.ContainsKey(id))
             {
                 return;
             }
 
-            SortedList<float, Mat> snapshots = _snapshotsOfObject[id];
+            SortedList<float, Mat> snapshots = _snapshotsByConfidence[id];
 
             var highestConfidence = snapshots.Keys.Max();
-
-            string filename = id.Replace(':', '_');
             Mat highestSnapshot = snapshots[highestConfidence];
 
-            if (highestSnapshot.Width > 200 /*&& highestSnapshot.Height > 200*/)
-            {
-                highestSnapshot.SaveImage($"Snapshots/{filename}.jpg");
-            }
-            
+            SaveBestSnapshot(id, highestSnapshot);
 
             foreach (Mat snapshot in snapshots.Values)
             {
                 snapshot.Dispose();
             }
 
-            _snapshotsOfObject.TryRemove(id, out var removedSnapshots);
+            _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
+        }
+
+        private void SaveBestSnapshot(string id, Mat highestSnapshot)
+        {
+            string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
+            string filename = id.Replace(':', '_');
+            if (highestSnapshot.Width > _minSnapshotWidth && highestSnapshot.Height > _maxSnapshotHeight)
+            {
+                highestSnapshot.SaveImage($"{_snapshotsDir}/{timestamp}_{filename}.jpg");
+            }
         }
         #endregion
 
-        public void Dispose()
+         public void Dispose()
         {
             foreach (Mat scene in _scenesOfFrame.Values)
             {

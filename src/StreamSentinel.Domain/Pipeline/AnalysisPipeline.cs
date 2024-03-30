@@ -64,7 +64,8 @@ namespace StreamSentinel.Pipeline
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
             foreach (var setting in _analysisHandlerSettings)
             {
-                var handler = CreateInstance<IAnalysisHandler>(setting.AssemblyFile, setting.FullQualifiedClassName);
+                var handler = CreateInstance<IAnalysisHandler>(setting.AssemblyFile, setting.FullQualifiedClassName,
+                    new object?[] { setting.Preferences });
                 _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)handler);
                 _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)handler);
                 _services.AddTransient<IAnalysisHandler>(sp => handler);
