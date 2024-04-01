@@ -31,17 +31,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaLoader.Tests", "test\components\MediaLoader.Tests\MediaLoader.Tests.csproj", "{A7ECE89A-B633-45C8-A040-DFC26BE3F741}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detector.YoloV5Onnx", "src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj", "{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detector.YoloV5Onnx", "src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj", "{AEA34FF5-07AD-4EB2-B25B-B25B3684DD00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detector.YoloV4Native", "src\components\Detector.YoloV4Native\Detector.YoloV4Native.csproj", "{3FAD0B66-A035-4E5E-B7E2-AD7D2690E6BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detector.YoloV4Native", "src\components\Detector.YoloV4Native\Detector.YoloV4Native.csproj", "{3FAD0B66-A035-4E5E-B7E2-AD7D2690E6BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamSentinel.Core.Tests", "test\StreamSentinel.Core.Tests\StreamSentinel.Core.Tests.csproj", "{B5C5F900-D5F1-47F2-85BA-4C6F5A116BC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamSentinel.Core.Tests", "test\StreamSentinel.Core.Tests\StreamSentinel.Core.Tests.csproj", "{B5C5F900-D5F1-47F2-85BA-4C6F5A116BC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamSentinel.Domain.Tests", "test\StreamSentinel.Domain.Tests\StreamSentinel.Domain.Tests.csproj", "{EF49F2B5-EFF9-4A3D-AD5B-B6FB950E5A2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamSentinel.Domain.Tests", "test\StreamSentinel.Domain.Tests\StreamSentinel.Domain.Tests.csproj", "{EF49F2B5-EFF9-4A3D-AD5B-B6FB950E5A2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectDetector.Tests", "test\components\ObjectDetector.Tests\ObjectDetector.Tests.csproj", "{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectDetector.Tests", "test\components\ObjectDetector.Tests\ObjectDetector.Tests.csproj", "{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tracker.SortTracker", "src\components\Tracker.SortTracker\Tracker.SortTracker.csproj", "{11AAB11A-23F0-45F5-8EB7-A0B5B2213433}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tracker.SortTracker", "src\components\Tracker.SortTracker\Tracker.SortTracker.csproj", "{11AAB11A-23F0-45F5-8EB7-A0B5B2213433}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tracker.DeepSortTracker", "Tracker.DeepSortTracker\Tracker.DeepSortTracker.csproj", "{29754927-9EE0-4686-9BC3-A806A7A001B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +115,10 @@ Global
 		{11AAB11A-23F0-45F5-8EB7-A0B5B2213433}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11AAB11A-23F0-45F5-8EB7-A0B5B2213433}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11AAB11A-23F0-45F5-8EB7-A0B5B2213433}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29754927-9EE0-4686-9BC3-A806A7A001B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29754927-9EE0-4686-9BC3-A806A7A001B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29754927-9EE0-4686-9BC3-A806A7A001B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29754927-9EE0-4686-9BC3-A806A7A001B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +142,7 @@ Global
 		{EF49F2B5-EFF9-4A3D-AD5B-B6FB950E5A2E} = {F10AA149-2626-486E-85BB-9CD5365F3016}
 		{DC4C6860-07C8-45F2-B9A9-A2BBAEA3393C} = {C99815B5-AC5B-46D0-BDFB-4D70674C7BE2}
 		{11AAB11A-23F0-45F5-8EB7-A0B5B2213433} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
+		{29754927-9EE0-4686-9BC3-A806A7A001B8} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A55C749-0BFF-4EFD-8499-12A2CB3B5B07}

@@ -51,9 +51,13 @@ namespace StreamSentinel.Pipeline
             //     "Detector.YoloV4Native", "Detector.YoloV4Native.YoloV4NativeDetector");
             // _services.AddTransient<IObjectDetector>(sp => detector2);
 
+            //var tracker = CreateInstance<IObjectTracker>(
+            //    "Tracker.SortTracker.dll", "Tracker.SortTracker.SortTracker",
+            //    new object?[] { 0.1f, 25 });
+            //_services.AddTransient<IObjectTracker>(sp => tracker);
+
             var tracker = CreateInstance<IObjectTracker>(
-                "Tracker.SortTracker.dll", "Tracker.SortTracker.SortTracker",
-                new object?[] { 0.1f, 25 });
+                "Tracker.DeepSortTracker.dll", "Tracker.DeepSortTracker.DeepSortTracker");
             _services.AddTransient<IObjectTracker>(sp => tracker);
 
             _provider = _services.BuildServiceProvider();
