@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\StreamSentinel.Domain\StreamSentinel.Domain.csproj" />
+    <ProjectReference Include="..\..\StreamSentinel.Domain\StreamSentinel.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
