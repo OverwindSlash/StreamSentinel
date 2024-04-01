@@ -8,6 +8,6 @@ namespace StreamSentinel.Components.Interfaces.RegionManager
         public ImageAnalysisDefinition AnalysisDefinition { get; }
 
         void LoadAnalysisDefinition(string jsonFile, int imageWidth, int imageHeight);
-        void DetermineAnalyzableObjects(List<DetectedObject> detectedObjects);
+        void CalcRegionProperties(List<DetectedObject> detectedObjects);
     }
 }

@@ -22,6 +22,7 @@ public class DetectedObject : IDisposable, IPrediction
     public Mat Snapshot { get; set; }
 
     public bool IsUnderAnalysis { get; set; }
+    public int LaneIndex { get; set; }
 
     [JsonIgnore]
     public int X => Bbox.X;

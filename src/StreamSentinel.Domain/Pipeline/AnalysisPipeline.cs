@@ -129,6 +129,7 @@ namespace StreamSentinel.Pipeline
                 {
                     var frame = _mediaLoader.RetrieveFrame();
                     frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
+                    _regionManager.CalcRegionProperties(frame.DetectedObjects);
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
                     var analyzedFrame = Analyze(frame);
                     PushAanlysisResults(analyzedFrame);
@@ -179,6 +180,9 @@ namespace StreamSentinel.Pipeline
 
                 // Display id.
                 image.PutText(bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
+
+                // Display lane
+                image.PutText("L:" + detectedObject.LaneIndex.ToString(), new Point(bbox.X + 20, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
             Cv2.ImShow("test", analyzedFrame.Scene.Resize(new Size(1920, 1080)));

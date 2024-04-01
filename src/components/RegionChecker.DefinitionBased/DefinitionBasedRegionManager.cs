@@ -1,18 +1,22 @@
-﻿using System.Collections.Concurrent;
-using StreamSentinel.Components.Interfaces.RegionManager;
+﻿using StreamSentinel.Components.Interfaces.RegionManager;
 using StreamSentinel.Entities.AnalysisDefinitions;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events;
 using StreamSentinel.Entities.Geometric;
+using System.Collections.Concurrent;
 
 namespace RegionManager.DefinitionBased
 {
     public class DefinitionBasedRegionManager : IRegionManager, IObserver<ObjectExpiredEvent>
     {
+        public const int NoNeedToCalculateLane = -1;
+        public const int NotInAnyLaneIndex = 0;
+
         private ImageAnalysisDefinition _definition;
         private bool _isObjectAnalyzableRetain;
         private List<AnalysisArea> _analysisAreas;
         private List<ExcludedArea> _excludedAreas;
+        private List<Lane> _lanes;
 
         // Id(type:trackingId) -> trakingId
         private readonly ConcurrentDictionary<string, long> _allTrackingIdsUnderAnalysis;
@@ -32,42 +36,68 @@ namespace RegionManager.DefinitionBased
             _isObjectAnalyzableRetain = _definition.IsObjectAnalyzableRetain;
             _analysisAreas = _definition.AnalysisAreas;
             _excludedAreas = _definition.ExcludedAreas;
+            _lanes = _definition.Lanes;
         }
 
-        public void DetermineAnalyzableObjects(List<DetectedObject> detectedObjects)
+        public void CalcRegionProperties(List<DetectedObject> detectedObjects)
         {
             foreach (DetectedObject detectedObject in detectedObjects)
             {
-                if (_isObjectAnalyzableRetain && _allTrackingIdsUnderAnalysis.ContainsKey(detectedObject.Id))
+                DetermineAnalyzableObject(detectedObject);
+                CalculateLane(detectedObject);
+            }
+        }
+
+        private void DetermineAnalyzableObject(DetectedObject detectedObject)
+        {
+            if (_isObjectAnalyzableRetain && _allTrackingIdsUnderAnalysis.ContainsKey(detectedObject.Id))
+            {
+                detectedObject.IsUnderAnalysis = true;
+                return;
+            }
+
+            NormalizedPoint point = new NormalizedPoint(_definition.ImageWidth, _definition.ImageHeight,
+                detectedObject.CenterX, detectedObject.CenterY);
+
+            foreach (AnalysisArea analysisArea in _analysisAreas)
+            {
+                if (analysisArea.IsPointInPolygon(point))
                 {
                     detectedObject.IsUnderAnalysis = true;
-                    continue;
+                    break;
                 }
+            }
 
-                NormalizedPoint point = new NormalizedPoint(_definition.ImageWidth, _definition.ImageHeight,
-                    detectedObject.CenterX, detectedObject.CenterY);
-
-                foreach (AnalysisArea analysisArea in _analysisAreas)
+            foreach (ExcludedArea excludedArea in _excludedAreas)
+            {
+                if (excludedArea.IsPointInPolygon(point))
                 {
-                    if (analysisArea.IsPointInPolygon(point))
-                    {
-                        detectedObject.IsUnderAnalysis = true;
-                        break;
-                    }
+                    detectedObject.IsUnderAnalysis = false;
+                    break;
                 }
+            }
 
-                foreach (ExcludedArea excludedArea in _excludedAreas)
-                {
-                    if (excludedArea.IsPointInPolygon(point))
-                    {
-                        detectedObject.IsUnderAnalysis = false;
-                        break;
-                    }
-                }
+            if (detectedObject.IsUnderAnalysis)
+            {
+                _allTrackingIdsUnderAnalysis.TryAdd(detectedObject.Id, detectedObject.TrackingId);
+            }
+        }
 
-                if (detectedObject.IsUnderAnalysis)
+        private void CalculateLane(DetectedObject detectedObject)
+        {
+            if (!detectedObject.IsUnderAnalysis)
+            {
+                return;
+            }
+
+            NormalizedPoint point = new NormalizedPoint(_definition.ImageWidth, _definition.ImageHeight,
+                detectedObject.CenterX, detectedObject.CenterY);
+
+            foreach (Lane lane in _lanes)
+            {
+                if (lane.IsPointInPolygon(point))
                 {
-                    _allTrackingIdsUnderAnalysis.TryAdd(detectedObject.Id, detectedObject.TrackingId);
+                    detectedObject.LaneIndex = lane.Index;
                 }
             }
         }
