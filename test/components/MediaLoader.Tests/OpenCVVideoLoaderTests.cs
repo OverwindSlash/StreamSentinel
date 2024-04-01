@@ -340,24 +340,24 @@ public class OpenCVVideoLoaderTests
         Assert.That(diff <= 10);
     }
 
-    [Test]
-    public async Task Test_Play_RtspStream()
-    {
-        int bufferSize = 50;
-        using var loader = new VideoLoader("tempId", bufferSize);
-        //loader.Open(@"rtsp://admin:CS%40202304@192.168.1.151:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1");
-        loader.Open(@"rtsp://stream.strba.sk:1935/strba/VYHLAD_JAZERO.stream");
+    //[Test]
+    //public async Task Test_Play_RtspStream()
+    //{
+    //    int bufferSize = 50;
+    //    using var loader = new VideoLoader("tempId", bufferSize);
+    //    //loader.Open(@"rtsp://admin:CS%40202304@192.168.1.151:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1");
+    //    loader.Open(@"rtsp://stream.strba.sk:1935/strba/VYHLAD_JAZERO.stream");
 
-        loader.Play(1, true, bufferSize);
+    //    loader.Play(1, true, bufferSize);
 
-        var bufferedFrameCount = loader.BufferedFrameCount;
-        for (int i = 1; i <= bufferedFrameCount; i++)
-        {
-            var frame = await loader.RetrieveFrameAsync();
-            Assert.IsNotNull(frame);
-            Assert.That(frame.FrameId, Is.EqualTo(i));
-        }
-    }
+    //    var bufferedFrameCount = loader.BufferedFrameCount;
+    //    for (int i = 1; i <= bufferedFrameCount; i++)
+    //    {
+    //        var frame = await loader.RetrieveFrameAsync();
+    //        Assert.IsNotNull(frame);
+    //        Assert.That(frame.FrameId, Is.EqualTo(i));
+    //    }
+    //}
 
     [Test]
     public async Task Test_Play_RtspStream_CheckTimeOffset()

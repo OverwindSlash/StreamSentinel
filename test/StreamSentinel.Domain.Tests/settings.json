@@ -1,6 +1,6 @@
 {
   "Pipeline": {
-    "Uri": "D:\\Video\\river.ts"
+    "Uri": "D:\\data\\boat\\river.ts"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
@@ -20,8 +20,8 @@
     "Thresh": 0.5
   },
   "Tracker": {
-    "AssemblyFile": "Tracker.SortTracker.dll",
-    "FullQualifiedClassName": "Tracker.SortTracker.SortTracker",
+    "AssemblyFile": "Tracker.DeepSortTracker.dll",
+    "FullQualifiedClassName": "Tracker.DeepSortTracker.DeepSortTracker",
     "Parameters": [
       0.1,
       75

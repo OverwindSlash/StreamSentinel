@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
     <ProjectReference Include="..\..\src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
     <ProjectReference Include="..\..\src\components\Snapshot.InMemory\Snapshot.InMemory.csproj" />
+    <ProjectReference Include="..\..\src\components\Tracker.DeepSortTracker\Tracker.DeepSortTracker.csproj" />
     <ProjectReference Include="..\..\src\components\Tracker.SortTracker\Tracker.SortTracker.csproj" />
     <ProjectReference Include="..\..\src\StreamSentinel.Domain\StreamSentinel.Domain.csproj" />
   </ItemGroup>

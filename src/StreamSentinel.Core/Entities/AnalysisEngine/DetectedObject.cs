@@ -5,7 +5,7 @@ using OpenCvSharp;
 
 namespace StreamSentinel.Entities.AnalysisEngine;
 
-public class DetectedObject : IDisposable
+public class DetectedObject : IDisposable, IPrediction
 {
     public string Id => $"{Label}:{TrackingId}";
     public string DeviceId { get; set; }
@@ -49,6 +49,23 @@ public class DetectedObject : IDisposable
     public int BottomRightY => Bbox.BottomRightY;
     [JsonIgnore]
     public RectangleF TrackingRectangle => new(Bbox.X, Bbox.Y, Bbox.Width, Bbox.Height);
+
+    [JsonIgnore]
+    public DetectionObjectType DetectionObjectType => (DetectionObjectType)(LabelId + 5);
+    [JsonIgnore]
+    public Rectangle CurrentBoundingBox => new(Bbox.X, Bbox.Y, Bbox.Width, Bbox.Height);
+    //[JsonIgnore]
+    //public float Confidence => Bbox.Confidence;
+    [JsonIgnore]
+    public int TrackId
+    {
+        get
+        { return (int)TrackingId; }
+        set
+        {
+            Bbox.TrackingId = (uint)value;
+        }
+    }
 
     public void Dispose()
     {
