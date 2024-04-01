@@ -63,7 +63,8 @@ namespace Snapshot.InMemory
         private float CalculateFactor(DetectedObject obj)
         {
             // Area as order factor.
-            return obj.Width * obj.Height;
+            // return obj.Width * obj.Height;
+            return obj.Width;
         }
 
         private void AddSnapshotOfObjectById(string id, float confidence, Mat snapshot)
