@@ -21,8 +21,10 @@
     <ProjectReference Include="..\..\src\components\Detector.YoloV4Native\Detector.YoloV4Native.csproj" />
     <ProjectReference Include="..\..\src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
     <ProjectReference Include="..\..\src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
+    <ProjectReference Include="..\..\src\components\Snapshot.InMemory\Snapshot.InMemory.csproj" />
     <ProjectReference Include="..\..\src\components\Tracker.SortTracker\Tracker.SortTracker.csproj" />
     <ProjectReference Include="..\..\src\StreamSentinel.Domain\StreamSentinel.Domain.csproj" />
+    <ProjectReference Include="..\..\Tracker.DeepSortTracker\Tracker.DeepSortTracker.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +33,9 @@
 
   <ItemGroup>
     <None Update="Images\Traffic_001.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Video\video1.avi">

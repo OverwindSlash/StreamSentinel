@@ -1,22 +1,31 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OpenCvSharp;
 using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Components.Interfaces.MediaLoader;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
+using StreamSentinel.Components.Interfaces.ObjectTracker;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;
-using System.Diagnostics;
+using StreamSentinel.Entities.Events;
+using StreamSentinel.Pipeline.Settings;
 using System.Reflection;
-using StreamSentinel.Components.Interfaces.ObjectTracker;
 
 namespace StreamSentinel.Pipeline
 {
     public class AnalysisPipeline
     {
         private const int DefaultFrameLifeTime = 125;
+
         private readonly ServiceCollection _services;
         private readonly ServiceProvider _provider;
-        private readonly PipelineSettings _settings;
+
+        private readonly PipelineSettings _pipeLineSettings;
+        private readonly MediaLoaderSettings _mediaLoaderSettings;
+        private readonly DetectorSettings _detectorSettings;
+        private readonly TrackerSettings _trackerSettings;
+        private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
+
         private readonly ObservableSlideWindow _slideWindow;
         private readonly VideoFrameBuffer _analyzedFrameBuffer;
 
@@ -24,46 +33,49 @@ namespace StreamSentinel.Pipeline
         private IObjectDetector _objectDetector;
         private IObjectTracker _objectTracker;
         private List<IAnalysisHandler> _analysisHandlers;
+        
 
-        public AnalysisPipeline()
+        public AnalysisPipeline(IConfiguration config)
         {
-            // TODO: get value from config file
-            _settings = new PipelineSettings()
-            {
-                Uri = @"Video\video1.avi",
-                ModelPath = @"Models\yolov5m.onnx",
-                UseCuda = true
-            };
-
-            // TODO: assembly name and class name from config file
-            _services = new ServiceCollection();
-
-            var mediaLoader = CreateInstance<IMediaLoader>(
-                "MediaLoader.OpenCV.dll", "MediaLoader.OpenCV.VideoLoader", 
-                new object?[] { "tempId", DefaultFrameLifeTime });
-            _services.AddTransient<IMediaLoader>(sp => mediaLoader);
-
-            var detector1 = CreateInstance<IObjectDetector>(
-                "Detector.YoloV5Onnx.dll", "Detector.YoloV5Onnx.YoloV5OnnxDetector");
-            _services.AddTransient<IObjectDetector>(sp => detector1);
-
-            // var detector2 = CreateInstance<IObjectDetector>(
-            //     "Detector.YoloV4Native", "Detector.YoloV4Native.YoloV4NativeDetector");
-            // _services.AddTransient<IObjectDetector>(sp => detector2);
-
-            //var tracker = CreateInstance<IObjectTracker>(
-            //    "Tracker.SortTracker.dll", "Tracker.SortTracker.SortTracker",
-            //    new object?[] { 0.1f, 25 });
-            //_services.AddTransient<IObjectTracker>(sp => tracker);
-
-            var tracker = CreateInstance<IObjectTracker>(
-                "Tracker.DeepSortTracker.dll", "Tracker.DeepSortTracker.DeepSortTracker");
-            _services.AddTransient<IObjectTracker>(sp => tracker);
-
-            _provider = _services.BuildServiceProvider();
+            _pipeLineSettings = config.GetSection("Pipeline").Get<PipelineSettings>();
 
             _slideWindow = new ObservableSlideWindow(DefaultFrameLifeTime);
             _analyzedFrameBuffer = new VideoFrameBuffer(DefaultFrameLifeTime);
+
+            _services = new ServiceCollection();
+
+            _mediaLoaderSettings = config.GetSection("MediaLoader").Get<MediaLoaderSettings>();
+            var mediaLoader = CreateInstance<IMediaLoader>(
+                _mediaLoaderSettings.AssemblyFile, _mediaLoaderSettings.FullQualifiedClassName,
+                new object?[] { _mediaLoaderSettings.Parameters[0], int.Parse(_mediaLoaderSettings.Parameters[1]) });
+            _services.AddTransient<IMediaLoader>(sp => mediaLoader);
+
+            _detectorSettings = config.GetSection("Detector").Get<DetectorSettings>();
+            var detector = CreateInstance<IObjectDetector>(
+                _detectorSettings.AssemblyFile, _detectorSettings.FullQualifiedClassName);
+            _services.AddTransient<IObjectDetector>(sp => detector);
+
+            _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
+            var tracker = CreateInstance<IObjectTracker>(
+                _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName,
+                new object?[] { float.Parse(_trackerSettings.Parameters[0]), int.Parse(_trackerSettings.Parameters[1]) });
+            _services.AddTransient<IObjectTracker>(sp => tracker);
+            //_trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
+            //var tracker = CreateInstance<IObjectTracker>(
+            //    _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
+            //_services.AddTransient<IObjectTracker>(sp => tracker);
+
+            _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
+            foreach (var setting in _analysisHandlerSettings)
+            {
+                var handler = CreateInstance<IAnalysisHandler>(setting.AssemblyFile, setting.FullQualifiedClassName,
+                    new object?[] { setting.Preferences });
+                _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)handler);
+                _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)handler);
+                _services.AddTransient<IAnalysisHandler>(sp => handler);
+            }
+
+            _provider = _services.BuildServiceProvider();
         }
 
         private static T CreateInstance<T>(string assemblyFile, string fullQualifiedClassName, object?[] parameters = null)
@@ -87,24 +99,24 @@ namespace StreamSentinel.Pipeline
         public void Run()
         {
             _mediaLoader = _provider.GetService<IMediaLoader>();
-            _mediaLoader.Open(_settings.Uri);
+            _mediaLoader.Open(_pipeLineSettings.Uri);
 
             _objectDetector = _provider.GetService<IObjectDetector>();
             _objectDetector.Init(new Dictionary<string, string>() {
-                {"model_path", _settings.ModelPath},
-                {"use_cuda", _settings.UseCuda.ToString()}
+                {"model_path", _detectorSettings.ModelPath},
+                {"use_cuda", _detectorSettings.UseCuda.ToString()}
             });
 
             _objectTracker = _provider.GetService<IObjectTracker>();
 
-            _analysisHandlers = new List<IAnalysisHandler>();
+            _analysisHandlers = _provider.GetServices<IAnalysisHandler>().ToList();
 
             var analysisTask = Task.Run(() =>
             {
                 while (_mediaLoader.BufferedFrameCount != 0 || _mediaLoader.IsOpened)
                 {
                     var frame = _mediaLoader.RetrieveFrame();
-                    frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene));
+                    frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
                     var analyzedFrame = Analyze(frame);
                     PushAanlysisResults(analyzedFrame);
@@ -113,29 +125,10 @@ namespace StreamSentinel.Pipeline
 
             var videoTask = Task.Run(() =>
             {
-                _mediaLoader.Play();
+                _mediaLoader.Play(_mediaLoaderSettings.VideoStride);
             });
 
             Task.WaitAll(analysisTask, videoTask);
-
-            // Debug Display
-            foreach (var frame in _analyzedFrameBuffer)
-            {
-                foreach (var detectedObject in frame.DetectedObjects)
-                {
-                    var image = frame.Scene;
-                    var bbox = detectedObject.Bbox;
-                
-                    // Display box for all objects.
-                    image.Rectangle(new Point(bbox.X, bbox.Y), new Point(bbox.X + bbox.Width, bbox.Y + bbox.Height), Scalar.Red);
-                
-                    // Display id.
-                    image.PutText(bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.White);
-                }
-                
-                Cv2.ImShow("test", frame.Scene);
-                Cv2.WaitKey(20);
-            }
         }
 
         private Frame Analyze(Frame frame)
@@ -156,14 +149,30 @@ namespace StreamSentinel.Pipeline
         {
             _analyzedFrameBuffer.Enqueue(analyzedFrame);
 
-            string detections = string.Empty;
-            var groups = analyzedFrame.DetectedObjects.GroupBy(obj => obj.Label);
-            foreach (var group in groups)
+            // string detections = string.Empty;
+            // var groups = analyzedFrame.DetectedObjects.GroupBy(obj => obj.Label);
+            // foreach (var group in groups)
+            // {
+            //     detections += group.Key.ToString() + ":" + group.Count().ToString() + "; ";
+            // }
+            //
+            // Trace.WriteLine($"FrameId: {analyzedFrame.FrameId}, {detections}");
+
+            // Debug Display
+            foreach (var detectedObject in analyzedFrame.DetectedObjects)
             {
-                detections += group.Key.ToString() + ":" + group.Count().ToString() + "; ";
+                var image = analyzedFrame.Scene;
+                var bbox = detectedObject.Bbox;
+
+                // Display box for all objects.
+                image.Rectangle(new Point(bbox.X, bbox.Y), new Point(bbox.X + bbox.Width, bbox.Y + bbox.Height), Scalar.Red);
+
+                // Display id.
+                image.PutText(bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
-            
-            Trace.WriteLine($"FrameId: {analyzedFrame.FrameId}, {detections}");
+
+            Cv2.ImShow("test", analyzedFrame.Scene.Resize(new Size(1920, 1080)));
+            Cv2.WaitKey(1);
         }
     }
 }

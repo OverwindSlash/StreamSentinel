@@ -36,11 +36,12 @@ namespace Detector.YoloV5Onnx
 
             _predictor = new YoloPredictor<Yolo640v5>(File.ReadAllBytes(modelPath), option);
 
-            // _detectionEnabledTypes.AddRange(new DetectionObjectType[]
-            // {
-            //     DetectionObjectType.Car,
-            //     DetectionObjectType.Person
-            // });
+
+            // TODO: Define detection object type in config file.
+            _detectionEnabledTypes.AddRange(new DetectionObjectType[]
+            {
+                DetectionObjectType.Boat
+            });
 
             // Avoid first time-consuming call in test cases.
             using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
