@@ -24,3 +24,5 @@ aspnet-core/docker/mvc/Mvc-Logs/
 /src/components/Detector.YoloV4Native/Model/yolov4/yolov4.names
 /src/components/Detector.YoloV4Native/Model/yolov4/yolov4.weights
 *.weights
+/src/components/Detector.YoloV5Onnx/Models/best.onnx
+/src/components/Detector.YoloV5Onnx/Models/yolov5x.onnx
