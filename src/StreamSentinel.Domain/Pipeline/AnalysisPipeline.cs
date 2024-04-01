@@ -55,15 +55,15 @@ namespace StreamSentinel.Pipeline
                 _detectorSettings.AssemblyFile, _detectorSettings.FullQualifiedClassName);
             _services.AddTransient<IObjectDetector>(sp => detector);
 
+            // _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
+            // var tracker = CreateInstance<IObjectTracker>(
+            //     _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName,
+            //     new object?[] { float.Parse(_trackerSettings.Parameters[0]), int.Parse(_trackerSettings.Parameters[1]) });
+            // _services.AddTransient<IObjectTracker>(sp => tracker);
             _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
             var tracker = CreateInstance<IObjectTracker>(
-                _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName,
-                new object?[] { float.Parse(_trackerSettings.Parameters[0]), int.Parse(_trackerSettings.Parameters[1]) });
+                _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
             _services.AddTransient<IObjectTracker>(sp => tracker);
-            //_trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
-            //var tracker = CreateInstance<IObjectTracker>(
-            //    _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
-            //_services.AddTransient<IObjectTracker>(sp => tracker);
 
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
             foreach (var setting in _analysisHandlerSettings)

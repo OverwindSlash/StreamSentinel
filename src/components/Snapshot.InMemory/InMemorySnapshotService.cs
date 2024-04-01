@@ -28,8 +28,12 @@ namespace Snapshot.InMemory
             _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
             _minSnapshotWidth = int.Parse(preferences["MinSnapshotWidth"]);
             _maxSnapshotHeight = int.Parse(preferences["MinSnapshotHeight"]);
-            
-            if (Directory.Exists(_snapshotsDir))
+
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var combine = Path.Combine(currentDirectory, _snapshotsDir);
+            var exists = Directory.Exists(combine);
+
+            if (!exists)
             {
                 Directory.CreateDirectory(_snapshotsDir);
             }

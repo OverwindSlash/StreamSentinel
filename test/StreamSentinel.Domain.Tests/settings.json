@@ -1,6 +1,6 @@
 {
   "Pipeline": {
-    "Uri": "D:\\data\\boat\\river.ts"
+    "Uri": "D:\\Video\\river.ts"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
