@@ -5,9 +5,11 @@ using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Components.Interfaces.MediaLoader;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Components.Interfaces.ObjectTracker;
+using StreamSentinel.Components.Interfaces.RegionManager;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events;
+using StreamSentinel.Entities.Geometric;
 using StreamSentinel.Pipeline.Settings;
 using System.Reflection;
 
@@ -23,6 +25,7 @@ namespace StreamSentinel.Pipeline
         private readonly PipelineSettings _pipeLineSettings;
         private readonly MediaLoaderSettings _mediaLoaderSettings;
         private readonly DetectorSettings _detectorSettings;
+        private readonly RegionManagerSettings _regionManagerSettings;
         private readonly TrackerSettings _trackerSettings;
         private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
 
@@ -31,6 +34,7 @@ namespace StreamSentinel.Pipeline
 
         private IMediaLoader _mediaLoader;
         private IObjectDetector _objectDetector;
+        private IRegionManager _regionManager;
         private IObjectTracker _objectTracker;
         private List<IAnalysisHandler> _analysisHandlers;
         
@@ -54,6 +58,11 @@ namespace StreamSentinel.Pipeline
             var detector = CreateInstance<IObjectDetector>(
                 _detectorSettings.AssemblyFile, _detectorSettings.FullQualifiedClassName);
             _services.AddTransient<IObjectDetector>(sp => detector);
+
+            _regionManagerSettings = config.GetSection("RegionManager").Get<RegionManagerSettings>();
+            var regionManager = CreateInstance<IRegionManager>(
+                _regionManagerSettings.AssemblyFile, _regionManagerSettings.FullQualifiedClassName);
+            _services.AddTransient<IRegionManager>(sp => regionManager);
 
             // _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
             // var tracker = CreateInstance<IObjectTracker>(
@@ -107,6 +116,9 @@ namespace StreamSentinel.Pipeline
                 {"use_cuda", _detectorSettings.UseCuda.ToString()}
             });
 
+            _regionManager = _provider.GetService<IRegionManager>();
+            _regionManager.LoadAnalysisDefinition(_regionManagerSettings.Parameters[0], _mediaLoader.MediaWidth, _mediaLoader.MediaHeight);
+
             _objectTracker = _provider.GetService<IObjectTracker>();
 
             _analysisHandlers = _provider.GetServices<IAnalysisHandler>().ToList();
@@ -149,14 +161,12 @@ namespace StreamSentinel.Pipeline
         {
             _analyzedFrameBuffer.Enqueue(analyzedFrame);
 
-            // string detections = string.Empty;
-            // var groups = analyzedFrame.DetectedObjects.GroupBy(obj => obj.Label);
-            // foreach (var group in groups)
-            // {
-            //     detections += group.Key.ToString() + ":" + group.Count().ToString() + "; ";
-            // }
-            //
-            // Trace.WriteLine($"FrameId: {analyzedFrame.FrameId}, {detections}");
+            // Draw specified area for debug
+            DrawRegion(_regionManager.AnalysisDefinition.AnalysisAreas[0], analyzedFrame.Scene, Scalar.Green);
+            DrawRegion(_regionManager.AnalysisDefinition.ExcludedAreas[0], analyzedFrame.Scene, Scalar.Red);
+            DrawRegion(_regionManager.AnalysisDefinition.Lanes[0], analyzedFrame.Scene, Scalar.Yellow);
+            DrawRegion(_regionManager.AnalysisDefinition.Lanes[1], analyzedFrame.Scene, Scalar.Yellow);
+            DrawLine(_regionManager.AnalysisDefinition.CountLines[0].Item1, analyzedFrame.Scene, Scalar.Black);
 
             // Debug Display
             foreach (var detectedObject in analyzedFrame.DetectedObjects)
@@ -173,6 +183,29 @@ namespace StreamSentinel.Pipeline
 
             Cv2.ImShow("test", analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             Cv2.WaitKey(1);
+        }
+
+        private static void DrawRegion(NormalizedPolygon region, Mat frame, Scalar color)
+        {
+            List<Point> points = new List<Point>();
+            foreach (NormalizedPoint normalizedPoint in region.Points)
+            {
+                var point = new Point(normalizedPoint.OriginalX, normalizedPoint.OriginalY);
+                points.Add(point);
+            }
+
+            List<IEnumerable<Point>> allPoints = new List<IEnumerable<Point>>();
+            allPoints.Add(points);
+
+            frame.Polylines(allPoints, true, color);
+        }
+
+        private static void DrawLine(NormalizedLine line, Mat frame, Scalar color)
+        {
+            Point start = new Point(line.Start.OriginalX, line.Start.OriginalY);
+            Point stop = new Point(line.Stop.OriginalX, line.Stop.OriginalY);
+
+            frame.Line(start, stop, color);
         }
     }
 }

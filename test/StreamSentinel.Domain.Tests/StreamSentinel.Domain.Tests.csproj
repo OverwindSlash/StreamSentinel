@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\src\components\Detector.YoloV4Native\Detector.YoloV4Native.csproj" />
     <ProjectReference Include="..\..\src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
     <ProjectReference Include="..\..\src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
+    <ProjectReference Include="..\..\src\components\RegionChecker.DefinitionBased\RegionManager.DefinitionBased.csproj" />
     <ProjectReference Include="..\..\src\components\Snapshot.InMemory\Snapshot.InMemory.csproj" />
     <ProjectReference Include="..\..\src\components\Tracker.DeepSortTracker\Tracker.DeepSortTracker.csproj" />
     <ProjectReference Include="..\..\src\components\Tracker.SortTracker\Tracker.SortTracker.csproj" />
@@ -32,6 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="changhudaqiao.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Images\Traffic_001.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

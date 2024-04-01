@@ -1,0 +1,143 @@
+{
+    "Name": "\u82CF\u5357\u8FD0\u6CB3\u82CF\u5DDE\u957F\u6D52\u5927\u6865",
+    "IsObjectAnalyzableRetain": false,
+    "IsDoubleLineCounting": false,
+    "AnalysisAreas": [
+        {
+            "Name": "water region",
+            "Points": [
+                {
+                    "NormalizedX": 0.156640625,
+                    "NormalizedY": 0.9986111111111111
+                },
+                {
+                    "NormalizedX": 0.00078125,
+                    "NormalizedY": 0.31180555555555556
+                },
+                {
+                    "NormalizedX": 0.010546875,
+                    "NormalizedY": 0.25416666666666665
+                },
+                {
+                    "NormalizedX": 0.16875,
+                    "NormalizedY": 0.22708333333333333
+                },
+                {
+                    "NormalizedX": 0.9984375,
+                    "NormalizedY": 0.3284722222222222
+                },
+                {
+                    "NormalizedX": 0.99921875,
+                    "NormalizedY": 0.9972222222222222
+                }
+            ]
+        }
+    ],
+    "ExcludedAreas": [
+        {
+            "Name": "too far region",
+            "Points": [
+                {
+                    "NormalizedX": 0.00078125,
+                    "NormalizedY": 0.31180555555555556
+                },
+                {
+                    "NormalizedX": 0.309375,
+                    "NormalizedY": 0.24583333333333332
+                },
+                {
+                    "NormalizedX": 0.169921875,
+                    "NormalizedY": 0.22708333333333333
+                },
+                {
+                    "NormalizedX": 0.0109375,
+                    "NormalizedY": 0.25416666666666665
+                }
+            ]
+        }
+    ],
+    "Lanes": [
+        {
+            "Name": "\u4E0B\u884C\u822A\u9053",
+            "Index": 1,
+            "Type": "\u822A\u9053",
+            "ForbiddenTypes": [],
+            "Points": [
+                {
+                    "NormalizedX": 0.089453125,
+                    "NormalizedY": 0.23958333333333334
+                },
+                {
+                    "NormalizedX": 0.999609375,
+                    "NormalizedY": 0.49444444444444446
+                },
+                {
+                    "NormalizedX": 0.999609375,
+                    "NormalizedY": 0.9993055555555556
+                },
+                {
+                    "NormalizedX": 0.15703125,
+                    "NormalizedY": 0.9993055555555556
+                },
+                {
+                    "NormalizedX": 0.0015625,
+                    "NormalizedY": 0.3111111111111111
+                },
+                {
+                    "NormalizedX": 0.010546875,
+                    "NormalizedY": 0.2548611111111111
+                }
+            ]
+        },
+        {
+            "Name": "\u4E0A\u884C\u822A\u9053",
+            "Index": 2,
+            "Type": "\u822A\u9053",
+            "ForbiddenTypes": [],
+            "Points": [
+                {
+                    "NormalizedX": 0.08984375,
+                    "NormalizedY": 0.2388888888888889
+                },
+                {
+                    "NormalizedX": 0.99921875,
+                    "NormalizedY": 0.4930555555555556
+                },
+                {
+                    "NormalizedX": 0.998046875,
+                    "NormalizedY": 0.32430555555555557
+                },
+                {
+                    "NormalizedX": 0.16875,
+                    "NormalizedY": 0.22569444444444445
+                }
+            ]
+        }
+    ],
+    "CountLines": [
+        {
+            "Item1": {
+                "Name": "count line",
+                "Start": {
+                    "NormalizedX": 0.051953125,
+                    "NormalizedY": 0.5701388888888889
+                },
+                "Stop": {
+                    "NormalizedX": 0.70078125,
+                    "NormalizedY": 0.28958333333333336
+                }
+            },
+            "Item2": {
+                "Name": "count line",
+                "Start": {
+                    "NormalizedX": 0.051953125,
+                    "NormalizedY": 0.5701388888888889
+                },
+                "Stop": {
+                    "NormalizedX": 0.70078125,
+                    "NormalizedY": 0.28958333333333336
+                }
+            }
+        }
+    ]
+}

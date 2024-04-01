@@ -127,12 +127,12 @@ namespace Snapshot.InMemory
         #region Observer Handlers
         void IObserver<ObjectExpiredEvent>.OnCompleted()
         {
-            throw new NotImplementedException();
+            // Do nothing
         }
 
         void IObserver<FrameExpiredEvent>.OnError(Exception error)
         {
-            throw new NotImplementedException();
+            // Do nothing
         }
 
         public void OnNext(FrameExpiredEvent value)
@@ -155,12 +155,12 @@ namespace Snapshot.InMemory
 
         void IObserver<FrameExpiredEvent>.OnCompleted()
         {
-            throw new NotImplementedException();
+            // Do nothing
         }
 
         void IObserver<ObjectExpiredEvent>.OnError(Exception error)
         {
-            throw new NotImplementedException();
+            // Do nothing
         }
 
         public void OnNext(ObjectExpiredEvent value)

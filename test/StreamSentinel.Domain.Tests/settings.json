@@ -39,5 +39,12 @@
         "MinSnapshotHeight": 20
       }
     }
-  ]
+  ],
+  "RegionManager": {
+    "AssemblyFile": "RegionManager.DefinitionBased.dll",
+    "FullQualifiedClassName": "RegionManager.DefinitionBased.DefinitionBasedRegionManager",
+    "Parameters": [
+      "changhudaqiao.json"
+    ]
+  }  
 }

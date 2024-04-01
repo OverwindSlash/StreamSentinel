@@ -30,6 +30,8 @@ public class VideoLoader : IVideoLoader, IDisposable
     }
 
     public string DeviceId => _deviceId;
+    public int MediaWidth => _videoSpecs.Width;
+    public int MediaHeight => _videoSpecs.Height;
     public bool IsOpened => _capture.IsOpened();
     public bool IsInPlaying => _isInPlaying;
     public VideoSpecs Specs => _videoSpecs;
