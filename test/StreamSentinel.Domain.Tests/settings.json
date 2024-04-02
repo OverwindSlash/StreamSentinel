@@ -20,8 +20,8 @@
     "Thresh": 0.5
   },
   "Tracker": {
-    "AssemblyFile": "Tracker.DeepSortTracker.dll",
-    "FullQualifiedClassName": "Tracker.DeepSortTracker.DeepSortTracker",
+    "AssemblyFile": "Tracker.SortTracker.dll",
+    "FullQualifiedClassName": "Tracker.SortTracker.SortTracker",
     "Parameters": [
       0.1,
       75

@@ -64,14 +64,13 @@ namespace StreamSentinel.Pipeline
                 _regionManagerSettings.AssemblyFile, _regionManagerSettings.FullQualifiedClassName);
             _services.AddTransient<IRegionManager>(sp => regionManager);
 
-            // _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
-            // var tracker = CreateInstance<IObjectTracker>(
-            //     _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName,
-            //     new object?[] { float.Parse(_trackerSettings.Parameters[0]), int.Parse(_trackerSettings.Parameters[1]) });
-            // _services.AddTransient<IObjectTracker>(sp => tracker);
             _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
             var tracker = CreateInstance<IObjectTracker>(
-                _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
+                _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName,
+                new object?[] { float.Parse(_trackerSettings.Parameters[0]), int.Parse(_trackerSettings.Parameters[1]) });
+            // _trackerSettings = config.GetSection("Tracker").Get<TrackerSettings>();
+            // var tracker = CreateInstance<IObjectTracker>(
+            //     _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
             _services.AddTransient<IObjectTracker>(sp => tracker);
 
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
@@ -141,6 +140,14 @@ namespace StreamSentinel.Pipeline
                 _mediaLoader.Play(_mediaLoaderSettings.VideoStride);
             });
 
+            var displayTask = Task.Run(() =>
+            {
+                while (!analysisTask.IsCompleted)
+                {
+                    DebugDisplay(_analyzedFrameBuffer.Dequeue());
+                }
+            });
+
             Task.WaitAll(analysisTask, videoTask);
         }
 
@@ -161,7 +168,10 @@ namespace StreamSentinel.Pipeline
         private void PushAanlysisResults(Frame analyzedFrame)
         {
             _analyzedFrameBuffer.Enqueue(analyzedFrame);
+        }
 
+        private void DebugDisplay(Frame analyzedFrame)
+        {
             // Draw specified area for debug
             DrawRegion(_regionManager.AnalysisDefinition.AnalysisAreas[0], analyzedFrame.Scene, Scalar.Green);
             DrawRegion(_regionManager.AnalysisDefinition.ExcludedAreas[0], analyzedFrame.Scene, Scalar.Red);
