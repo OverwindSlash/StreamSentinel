@@ -1,8 +1,10 @@
 ﻿using OpenCvSharp;
 using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Entities.AnalysisEngine;
-using StreamSentinel.Entities.Events;
+using StreamSentinel.Entities.Events.Pipeline;
 using System.Collections.Concurrent;
+using Snapshot.InMemory.DomainEvents;
+using StreamSentinel.Components.Interfaces.EventPublisher;
 
 namespace Snapshot.InMemory
 {
@@ -18,6 +20,10 @@ namespace Snapshot.InMemory
         private int _maxObjectSnapshots = 10;
         private int _minSnapshotWidth = 40;
         private int _maxSnapshotHeight = 40;
+
+        public string Name => nameof(InMemorySnapshotService);
+
+        private IDomainEventPublisher _domainEventPublisher;
 
         public InMemorySnapshotService(Dictionary<string, string> preferences)
         {
@@ -37,6 +43,11 @@ namespace Snapshot.InMemory
             {
                 Directory.CreateDirectory(_snapshotsDir);
             }
+        }
+
+        public void SetDomainEventPublisher(IDomainEventPublisher domainEventPublisher)
+        {
+            _domainEventPublisher = domainEventPublisher;
         }
 
         public AnalysisResult Analyze(Frame frame)
@@ -191,6 +202,9 @@ namespace Snapshot.InMemory
             }
 
             _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
+
+            var snapshotsCleaned = new SnapshotsCleanedEvent(Name, id);
+            _domainEventPublisher.PublishEvent(snapshotsCleaned);
         }
 
         private void SaveBestSnapshot(string id, Mat highestSnapshot)

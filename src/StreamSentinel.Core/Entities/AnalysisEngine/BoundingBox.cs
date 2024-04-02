@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Text.Json.Serialization;
 
 namespace StreamSentinel.Entities.AnalysisEngine;
@@ -14,8 +15,9 @@ public class BoundingBox
     public int Y { get; set; }
     public int Height { get; set; }
     public int Width { get; set; }
-        
 
+    [JsonIgnore]
+    public Rectangle TrackingRectangle => new(X, Y, Width, Height);
     [JsonIgnore]
     public int CenterX => (X + Width / 2);
     [JsonIgnore]

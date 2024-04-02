@@ -2,7 +2,7 @@
 using OpenCvSharp;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;
-using StreamSentinel.Entities.Events;
+using StreamSentinel.Entities.Events.Pipeline;
 
 namespace StreamSentinel.Core.Tests
 {

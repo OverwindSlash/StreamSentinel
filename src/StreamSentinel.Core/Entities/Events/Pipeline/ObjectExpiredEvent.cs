@@ -1,6 +1,6 @@
 ﻿using StreamSentinel.Entities.AnalysisEngine;
 
-namespace StreamSentinel.Entities.Events
+namespace StreamSentinel.Entities.Events.Pipeline
 {
     public class ObjectExpiredEvent : EventBase
     {

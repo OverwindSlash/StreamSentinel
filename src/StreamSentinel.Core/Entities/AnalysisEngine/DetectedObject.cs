@@ -1,7 +1,8 @@
+using OpenCvSharp;
 using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Text.Json.Serialization;
-using OpenCvSharp;
 
 namespace StreamSentinel.Entities.AnalysisEngine;
 
@@ -16,13 +17,21 @@ public class DetectedObject : IDisposable, IPrediction
 
     public int LabelId => Bbox.LabelId;
     public string Label => Bbox.Label;
-    public long TrackingId => Bbox.TrackingId;
+    public long TrackingId
+    {
+        get => Bbox.TrackingId;
+        set => Bbox.TrackingId = (uint)value;
+    }
+
     public float Confidence => Bbox.Confidence;
 
     public Mat Snapshot { get; set; }
 
     public bool IsUnderAnalysis { get; set; }
     public int LaneIndex { get; set; }
+
+    // Customize properties
+    public ConcurrentDictionary<string, object> _customizeProperties = new();
 
     [JsonIgnore]
     public int X => Bbox.X;
@@ -48,15 +57,13 @@ public class DetectedObject : IDisposable, IPrediction
     public int BottomRightX => Bbox.BottomRightX;
     [JsonIgnore]
     public int BottomRightY => Bbox.BottomRightY;
-    [JsonIgnore]
-    public RectangleF TrackingRectangle => new(Bbox.X, Bbox.Y, Bbox.Width, Bbox.Height);
+
 
     [JsonIgnore]
     public DetectionObjectType DetectionObjectType => (DetectionObjectType)(LabelId + 5);
     [JsonIgnore]
-    public Rectangle CurrentBoundingBox => new(Bbox.X, Bbox.Y, Bbox.Width, Bbox.Height);
-    //[JsonIgnore]
-    //public float Confidence => Bbox.Confidence;
+    public Rectangle CurrentBoundingBox => Bbox.TrackingRectangle;
+
     [JsonIgnore]
     public int TrackId
     {

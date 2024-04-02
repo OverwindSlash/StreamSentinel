@@ -1,7 +1,7 @@
 ﻿using StreamSentinel.Components.Interfaces.RegionManager;
 using StreamSentinel.Entities.AnalysisDefinitions;
 using StreamSentinel.Entities.AnalysisEngine;
-using StreamSentinel.Entities.Events;
+using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Entities.Geometric;
 using System.Collections.Concurrent;
 

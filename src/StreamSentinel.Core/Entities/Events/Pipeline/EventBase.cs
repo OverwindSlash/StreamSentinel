@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StreamSentinel.Entities.Events
+namespace StreamSentinel.Entities.Events.Pipeline
 {
     public class EventBase
     {

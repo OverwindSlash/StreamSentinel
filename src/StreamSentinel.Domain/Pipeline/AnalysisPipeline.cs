@@ -8,10 +8,11 @@ using StreamSentinel.Components.Interfaces.ObjectTracker;
 using StreamSentinel.Components.Interfaces.RegionManager;
 using StreamSentinel.DataStructures;
 using StreamSentinel.Entities.AnalysisEngine;
-using StreamSentinel.Entities.Events;
+using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Entities.Geometric;
 using StreamSentinel.Pipeline.Settings;
 using System.Reflection;
+using StreamSentinel.Components.Interfaces.EventPublisher;
 
 namespace StreamSentinel.Pipeline
 {
@@ -28,6 +29,7 @@ namespace StreamSentinel.Pipeline
         private readonly RegionManagerSettings _regionManagerSettings;
         private readonly TrackerSettings _trackerSettings;
         private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
+        private readonly PublisherSettings _publisherSettings;
 
         private readonly ObservableSlideWindow _slideWindow;
         private readonly VideoFrameBuffer _analyzedFrameBuffer;
@@ -36,6 +38,7 @@ namespace StreamSentinel.Pipeline
         private IObjectDetector _objectDetector;
         private IRegionManager _regionManager;
         private IObjectTracker _objectTracker;
+        private IDomainEventPublisher _domainEventPublisher;
         private List<IAnalysisHandler> _analysisHandlers;
         
 
@@ -72,6 +75,11 @@ namespace StreamSentinel.Pipeline
             // var tracker = CreateInstance<IObjectTracker>(
             //     _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
             _services.AddTransient<IObjectTracker>(sp => tracker);
+
+            _publisherSettings = config.GetSection("Publisher").Get<PublisherSettings>();
+            var publisher = CreateInstance<IDomainEventPublisher>(
+                _publisherSettings.AssemblyFile, _publisherSettings.FullQualifiedClassName);
+            _services.AddTransient<IDomainEventPublisher>(sp => publisher);
 
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
             foreach (var setting in _analysisHandlerSettings)
@@ -120,7 +128,10 @@ namespace StreamSentinel.Pipeline
 
             _objectTracker = _provider.GetService<IObjectTracker>();
 
+            _domainEventPublisher = _provider.GetService<IDomainEventPublisher>();
+
             _analysisHandlers = _provider.GetServices<IAnalysisHandler>().ToList();
+            _analysisHandlers.ForEach(handler => { handler.SetDomainEventPublisher(_domainEventPublisher); });
 
             var analysisTask = Task.Run(() =>
             {
@@ -142,7 +153,7 @@ namespace StreamSentinel.Pipeline
 
             var displayTask = Task.Run(() =>
             {
-                while (!analysisTask.IsCompleted)
+                while (!analysisTask.IsCompleted || _analyzedFrameBuffer.Count != 0)
                 {
                     DebugDisplay(_analyzedFrameBuffer.Dequeue());
                 }

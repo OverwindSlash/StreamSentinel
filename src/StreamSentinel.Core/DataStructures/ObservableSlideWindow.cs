@@ -1,5 +1,5 @@
 ﻿using StreamSentinel.Entities.AnalysisEngine;
-using StreamSentinel.Entities.Events;
+using StreamSentinel.Entities.Events.Pipeline;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

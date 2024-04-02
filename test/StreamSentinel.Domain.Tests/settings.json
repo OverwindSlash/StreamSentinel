@@ -46,5 +46,10 @@
     "Parameters": [
       "changhudaqiao.json"
     ]
-  }  
+  },
+  "Publisher": {
+    "AssemblyFile": "Publisher.TraceOutput.dll",
+    "FullQualifiedClassName": "Publisher.TraceOutput.TraceOutputPublisher",
+    "Parameters": []
+  }
 }
