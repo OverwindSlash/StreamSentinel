@@ -1,0 +1,40 @@
+{
+  "cameras": [
+    {
+      "id": "Camera 1",
+      "latitude": 30.0,
+      "longitude": 120.0,
+      "altitude": 100.0,
+      "minPan": -180.0,
+      "maxPan": 180.0,
+      "minTilt": -90.0,
+      "maxTilt": 90.0,
+      "minZoomLevel": 1,
+      "maxZoomLevel": 10,
+      "focalLength": 35.0,
+      "homePanToNorth": 0.0,
+      "homeTiltToHorizon": 0.0,
+      "angleToXAxis": 0.0,
+      "angleToYAxis": 0.0,
+      "angleToZAxis": 0.0
+    },
+    {
+      "id": "Camera 2",
+      "latitude": 30.1,
+      "longitude": 120.1,
+      "altitude": 100.0,
+      "minPan": -180.0,
+      "maxPan": 180.0,
+      "minTilt": -90.0,
+      "maxTilt": 90.0,
+      "minZoomLevel": 1,
+      "maxZoomLevel": 10,
+      "focalLength": 35.0,
+      "homePanToNorth": 0.0,
+      "homeTiltToHorizon": 0.0,
+      "angleToXAxis": 0.0,
+      "angleToYAxis": 0.0,
+      "angleToZAxis": 0.0
+    }
+  ]
+}

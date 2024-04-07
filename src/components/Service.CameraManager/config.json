@@ -1,0 +1,11 @@
+{
+  "DetectorFilePath": "Models/Yolo/yolo640v5.onnx",
+  "MatcherType": 0,
+  "YoloVersion": 1,
+  "AppearanceExtractorVersion": 0,
+  "AppearanceExtractorFilePath": "Models/Reid/osnet_x1_0_msmt17.onnx",
+  "AppearanceWeight": 0.8,
+  "SmoothAppearanceWeight": 0.875,
+  "FramesToAppearanceSmooth": 40,
+  "TargetConfidence": 0.8
+}
