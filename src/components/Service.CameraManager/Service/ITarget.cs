@@ -23,6 +23,6 @@ namespace Service.CameraManager.Service
     public enum CommandSourceEnum
     {
         FixedCamera,
-        VariableCamera
+        PtzCamera
     }
 }

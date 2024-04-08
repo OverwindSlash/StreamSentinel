@@ -115,20 +115,20 @@ namespace Service.CameraManager
         }
 
         // 计算相机需要水平转动的角度
-        private double CalculateHorizontalPanAngleByImage(Vector3 objectPositionInImage, CameraInfo camera)
+        private float CalculateHorizontalPanAngleByImage(RectangleF objectPositionInImage, CameraInfo camera)
         {
             // 计算相机需要水平转动的角度
-            var horizontalPanAngle = Math.Atan2(objectPositionInImage.X, camera.FocalLength) * 180 / Math.PI - camera.HomePanToEast;
+            var horizontalPanAngle = MathF.Atan2(objectPositionInImage.X, camera.FocalLength) * 180 / MathF.PI - camera.HomePanToEast;
 
             return horizontalPanAngle;
         }
 
 
         // 计算相机需要垂直转动的角度
-        private double CalculateVerticalTiltAngleByImage(Vector3 objectPositionInImage, CameraInfo camera)
+        private float CalculateVerticalTiltAngleByImage(RectangleF objectPositionInImage, CameraInfo camera)
         {
             // 计算相机需要垂直转动的角度
-            var verticalTiltAngle = Math.Atan2(objectPositionInImage.Y, camera.FocalLength) * 180 / Math.PI - camera.HomeTiltToHorizon;
+            var verticalTiltAngle = MathF.Atan2(objectPositionInImage.Y, camera.FocalLength) * 180 / MathF.PI - camera.HomeTiltToHorizon;
 
             return verticalTiltAngle;
         }
@@ -420,8 +420,137 @@ namespace Service.CameraManager
             }
             return new Vector3(HorizontalRotationAngle, VerticalRotationAngle, zoom);
         }
+        #endregion
 
-       
+        #region For Image
+
+        internal bool PointToTargetForAnotherPtzDevice(Vector3 movement, string deviceId)
+        {
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                return false;
+            }
+
+            if (!PrepareToMove(deviceId))
+            {
+                return false;
+            }
+            var move = CalculateMovementForAnotherDevice(movement, deviceId);
+            
+
+            var result = MoveAbsolute(deviceId, move.X, move.Y, 1);
+
+            return result;
+        }
+
+        private Vector3 CalculateMovementForAnotherDevice(Vector3 movement, string deviceId)
+        {
+            CameraInfo cameraInfo = cameras.FirstOrDefault(p => p.DeviceId == deviceId);
+            if (cameraInfo == null)
+            {
+                return new Vector3();
+            }
+            // 有一点需要注意：cameraInfo 中原本配置的Home字段是相对大地的，此时可设置为相对固定相机，从而简化计算？需要测试
+            var toPan= cameraInfo.HomePanToEast + movement.X;
+            // TODO: 由于高度差异造成的tilt微调，暂时无法计算，可能需要估一个，比如观测距离100米远的目标时的一个角度差。
+            var toTilt = -cameraInfo.HomeTiltToHorizon + movement.Y;
+            var toZoom = movement.Z;
+
+            return new Vector3(toPan, toTilt, toZoom);
+        }
+
+        internal bool MoveRelativeByImage(RectangleF bBox, string deviceId)
+        {
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                return false;
+            }
+
+            if (!PrepareToMove(deviceId))
+            {
+                return false;
+            }
+            var move = CalculateMovementByImage(bBox, deviceId);
+            var result = MoveRelative(deviceId, move.X, move.Y, move.Z);
+
+            return result;
+        }
+
+        private Vector3 CalculateMovementByImage(RectangleF bBox, string deviceId)
+        {
+
+            CameraInfo cameraInfo = cameras.FirstOrDefault(p => p.DeviceId == deviceId);
+            if (cameraInfo == null)
+            {
+                return new Vector3();
+            }
+            var status = moveStatus[deviceId];
+
+            // calculate pan/tilt/zoom
+            
+
+            // 计算水平和垂直偏移量
+            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth / 2;
+            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight / 2;
+
+            // 计算水平旋转角度
+            var HorizontalRotationAngle = MathF.Atan2(offsetX, cameraInfo.FocalLength * status.CameraStatus.ZoomPosition) * 180 / MathF.PI;
+
+            // 计算垂直旋转角度
+            var VerticalRotationAngle = MathF.Atan2(offsetY, cameraInfo.FocalLength * status.CameraStatus.ZoomPosition) * 180 / MathF.PI;
+
+
+            // 计算相机需要变焦的倍数
+            // TODO: how to find a proper zoomlevel
+            double frac = bBox.Width / cameraInfo.VideoWidth;
+            float zoom = 0;
+            if (frac > 0.8)
+            {
+                zoom += -0.5f;
+            }
+            else if (frac < 0.6)
+            {
+                zoom += 0.5f;
+            }
+            return new Vector3(HorizontalRotationAngle, VerticalRotationAngle, zoom);
+        }
+
+        public Vector3 CalculateMovementFixedDevice(RectangleF bBox, string deviceId)
+        {
+            CameraInfo cameraInfo = cameras.FirstOrDefault(p => p.DeviceId == deviceId);
+            if (cameraInfo == null)
+            {
+                return new Vector3();
+            }
+
+            // calculate pan/tilt/zoom
+
+            // 计算水平和垂直偏移量
+            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth / 2;
+            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight / 2;
+
+            // 计算水平旋转角度
+            var HorizontalRotationAngle = MathF.Atan2(offsetX, cameraInfo.FocalLength) * 180 / MathF.PI;
+
+            // 计算垂直旋转角度
+            var VerticalRotationAngle = MathF.Atan2(offsetY, cameraInfo.FocalLength) * 180 / MathF.PI;
+
+
+            // 计算相机需要变焦的倍数
+            // TODO: how to find a proper zoomlevel
+            double frac = bBox.Width / cameraInfo.VideoWidth;
+            float zoom = 0;
+            if (frac > 0.8)
+            {
+                zoom += -0.5f;
+            }
+            else if (frac < 0.6)
+            {
+                zoom += 0.5f;
+            }
+            return new Vector3(HorizontalRotationAngle, VerticalRotationAngle, zoom);
+        }
+
         #endregion
     }
 }

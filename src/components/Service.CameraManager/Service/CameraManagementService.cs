@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Service.CameraManager.OnvifCamera;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -9,12 +12,22 @@ namespace Service.CameraManager.Service
 {
     public class CameraManagementService
     {
-        private string _deviceId;
         private bool isCameraMoving = false;
+        private CameraController _cameraController;
+        private ServiceConfig _serviceConfig;
 
-        public CameraManagementService(string deviceId)
+        public CameraManagementService(string configFile)
         {
-            _deviceId = deviceId;
+            try
+            {
+                _serviceConfig = JsonConvert.DeserializeObject<ServiceConfig>(File.ReadAllText(configFile));
+                _cameraController = new CameraController(_serviceConfig.PtzUri);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError($"CameraManagementService Constructor Error: {ex.Message}");
+                return;
+            }            
         }
 
         public bool LookTo(ITarget target)
@@ -24,11 +37,25 @@ namespace Service.CameraManager.Service
                 return false;
             }
 
-            //TODO: 依据不同源的命令，进入不同的状态
+            bool result =false;
+            // 依据不同源的命令，进入不同的状态
+            switch (target.CommandSource)
+            {
+                case CommandSourceEnum.FixedCamera:
+                    // 需要通过固定相机的参数来计算需要相对运动的角度
+                    var movement = _cameraController.CalculateMovementFixedDevice(target.BBox, _serviceConfig.FixedDeviceId);
+                    result = _cameraController.PointToTargetForAnotherPtzDevice(movement, _serviceConfig.PtzDeviceId);
 
-            return true;
+                    break;
+                case CommandSourceEnum.PtzCamera:
+                    result = _cameraController.MoveRelativeByImage(target.BBox, _serviceConfig.PtzDeviceId);
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
         }
-
 
     }
 }
