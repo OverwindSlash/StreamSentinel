@@ -43,9 +43,15 @@ public class VideoLoader : IVideoLoader, IDisposable
         Close();
 
         _capture = new VideoCapture(uri, VideoCaptureAPIs.FFMPEG);
-        if (!_capture.IsOpened())
+        //if (!_capture.IsOpened())
+        //{
+        //    throw new Exception($"Stream source '{uri}' not available.");
+        //}
+        _capture.Open(uri);
+        while (!_capture.IsOpened())
         {
-            throw new Exception($"Stream source '{uri}' not available.");
+            Thread.Sleep(10);
+            continue;
         }
 
         _videoSpecs = new VideoSpecs(uri, _capture.FrameWidth, _capture.FrameHeight,

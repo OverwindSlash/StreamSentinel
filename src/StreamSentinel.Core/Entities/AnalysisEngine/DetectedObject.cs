@@ -62,7 +62,7 @@ public class DetectedObject : IDisposable, IPrediction
     [JsonIgnore]
     public DetectionObjectType DetectionObjectType => (DetectionObjectType)(LabelId + 5);
     [JsonIgnore]
-    public Rectangle CurrentBoundingBox => Bbox.TrackingRectangle;
+    public Rectangle CurrentBoundingBox => new(CenterX, CenterY, Width, Height);
 
     [JsonIgnore]
     public int TrackId

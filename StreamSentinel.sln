@@ -53,6 +53,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.TraceOutput", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.CameraManager", "src\components\Service.CameraManager\Service.CameraManager.csproj", "{2DE4F1D8-D673-491D-8144-433D12613752}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.PlateSnapshotService", "src\components\Handler.PlateSnapshot\Handler.PlateSnapshotService.csproj", "{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.PtzControl", "src\components\Publisher.PtzControl\Publisher.PtzControl.csproj", "{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.FixedDeviceService", "src\components\Handler.FixedDeviceService\Handler.FixedDeviceService.csproj", "{E038E983-610C-4141-B161-D5DC66180F92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +149,18 @@ Global
 		{2DE4F1D8-D673-491D-8144-433D12613752}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DE4F1D8-D673-491D-8144-433D12613752}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DE4F1D8-D673-491D-8144-433D12613752}.Release|Any CPU.Build.0 = Release|Any CPU
+		{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E038E983-610C-4141-B161-D5DC66180F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E038E983-610C-4141-B161-D5DC66180F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E038E983-610C-4141-B161-D5DC66180F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E038E983-610C-4141-B161-D5DC66180F92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +189,9 @@ Global
 		{1A97227C-91BD-40AC-9C44-93AB2E9ABE40} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 		{5F250ABE-C625-4575-B459-C975E8745187} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 		{2DE4F1D8-D673-491D-8144-433D12613752} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
+		{813FFFA4-3B16-4029-A6A8-170C2AA4BB56} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
+		{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
+		{E038E983-610C-4141-B161-D5DC66180F92} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A55C749-0BFF-4EFD-8499-12A2CB3B5B07}

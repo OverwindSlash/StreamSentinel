@@ -71,7 +71,7 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
                     if (_queue.TryDequeue(out var item))
                         return item;
                 }
-                Task.Delay(10).Wait(); // Wait for 10ms
+                Task.Delay(1).Wait(); // Wait for 10ms
             }
         }
 
@@ -98,7 +98,7 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
                         if (_queue.TryDequeue(out var item))
                             return item;
                     }
-                    Task.Delay(10).Wait(); // Wait for 10ms
+                    Task.Delay(1).Wait(); // Wait for 10ms
                 }
             });
         }

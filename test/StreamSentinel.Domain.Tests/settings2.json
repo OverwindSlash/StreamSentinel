@@ -1,6 +1,6 @@
 {
   "Pipeline": {
-    "Uri": "rtsp://192.168.1.40/Cam-778813-MediaProfile00000"
+    "Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
@@ -40,8 +40,8 @@
       }
     },
     {
-      "AssemblyFile": "Handler.FixedDeviceService.dll",
-      "FullQualifiedClassName": "Handler.FixedDeviceService.FixedDeviceAnalysisHandler",
+      "AssemblyFile": "Handler.PlateSnapshotService.dll",
+      "FullQualifiedClassName": "Handler.PlateSnapshotService.PlateSnapshotAnalysisHandler",
       "Parameters": [],
       "Preferences": {
       }
@@ -57,6 +57,6 @@
   "Publisher": {
     "AssemblyFile": "Publisher.PtzControl.dll",
     "FullQualifiedClassName": "Publisher.PtzControl.PtzControlPublisher",
-    "Parameters": ["config.json"]
+    "Parameters": [ "config.json" ]
   }
 }

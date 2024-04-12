@@ -40,7 +40,7 @@ namespace Detector.YoloV5Onnx
             // TODO: Define detection object type in config file.
             _detectionEnabledTypes.AddRange(new DetectionObjectType[]
             {
-                DetectionObjectType.Boat
+                DetectionObjectType.Person
             });
 
             // Avoid first time-consuming call in test cases.

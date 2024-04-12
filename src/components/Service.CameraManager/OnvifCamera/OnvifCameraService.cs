@@ -59,8 +59,8 @@ namespace Service.CameraManager.OnvifCamera
                     cameraInfo.MinZoomLevel = profile.PtzParams.MinZoomLevel <= 0 ? 1 : profile.PtzParams.MinZoomLevel;
                     cameraInfo.MaxZoomLevel = profile.PtzParams.MaxZoomLevel <= 0 ? 33 : profile.PtzParams.MaxZoomLevel;
                     cameraInfo.FocalLength = profile.PtzParams.FocalLength <= 0 ? 4.8f : profile.PtzParams.FocalLength;
-                    cameraInfo.CCDWidth = profile.PtzParams.SensorWidth <= 0 ? 5.4f : profile.PtzParams.SensorWidth;
-                    cameraInfo.CCDHeight = profile.PtzParams.SensorHeight <= 0 ? 4.0f : profile.PtzParams.SensorHeight;
+                    cameraInfo.CCDWidth = profile.PtzParams.SensorWidth <= 0 ? 7.2f : profile.PtzParams.SensorWidth;
+                    cameraInfo.CCDHeight = profile.PtzParams.SensorHeight <= 0 ? 5.3f : profile.PtzParams.SensorHeight;
 
                     cameraInfo.ProfileToken = profile.Token;
                     cameraInfo.VideoHeight = profile.VideoHeight;
@@ -200,7 +200,7 @@ namespace Service.CameraManager.OnvifCamera
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"Failed to GetStatusInDegree");
+                Trace.TraceError($"Failed to MoveToAbsolutePositionInDegree");
                 //throw;
                 cameraStatus.Error = $"Failed to MoveAbsolute. [DeviceId: {deviceId}]";
             }

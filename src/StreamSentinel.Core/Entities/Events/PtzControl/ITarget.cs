@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Service.CameraManager.Service
+namespace StreamSentinel.Entities.Events.PtzControl
 {
     public interface ITarget
     {

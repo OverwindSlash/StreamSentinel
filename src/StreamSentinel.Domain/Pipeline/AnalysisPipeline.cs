@@ -13,6 +13,7 @@ using StreamSentinel.Entities.Geometric;
 using StreamSentinel.Pipeline.Settings;
 using System.Reflection;
 using StreamSentinel.Components.Interfaces.EventPublisher;
+using System.Diagnostics;
 
 namespace StreamSentinel.Pipeline
 {
@@ -78,7 +79,8 @@ namespace StreamSentinel.Pipeline
 
             _publisherSettings = config.GetSection("Publisher").Get<PublisherSettings>();
             var publisher = CreateInstance<IDomainEventPublisher>(
-                _publisherSettings.AssemblyFile, _publisherSettings.FullQualifiedClassName);
+                _publisherSettings.AssemblyFile, _publisherSettings.FullQualifiedClassName,
+                new object?[] { _publisherSettings.Parameters[0] });
             _services.AddTransient<IDomainEventPublisher>(sp => publisher);
 
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
@@ -159,7 +161,7 @@ namespace StreamSentinel.Pipeline
                 }
             });
 
-            Task.WaitAll(analysisTask, videoTask);
+            //Task.WaitAll(analysisTask, videoTask);
         }
 
         private Frame Analyze(Frame frame)
@@ -206,7 +208,9 @@ namespace StreamSentinel.Pipeline
                 image.PutText("L:" + detectedObject.LaneIndex.ToString(), new Point(bbox.X + 20, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            Cv2.ImShow("test", analyzedFrame.Scene.Resize(new Size(1920, 1080)));
+            //Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
+
+            Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             Cv2.WaitKey(1);
         }
 

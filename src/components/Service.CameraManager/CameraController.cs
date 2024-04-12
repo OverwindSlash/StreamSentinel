@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Dynamic.Core.Tokenizer;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -424,7 +425,7 @@ namespace Service.CameraManager
 
         #region For Image
 
-        internal bool PointToTargetForAnotherPtzDevice(Vector3 movement, string deviceId)
+        internal bool PointToTargetForAnotherPtzDevice(Vector3 movement, Vector3 position, float fakeDistance, string deviceId)
         {
             if (string.IsNullOrEmpty(deviceId))
             {
@@ -435,7 +436,7 @@ namespace Service.CameraManager
             {
                 return false;
             }
-            var move = CalculateMovementForAnotherDevice(movement, deviceId);
+            var move = CalculateMovementForAnotherDevice(movement, position, fakeDistance, deviceId);
             
 
             var result = MoveAbsolute(deviceId, move.X, move.Y, 1);
@@ -443,20 +444,30 @@ namespace Service.CameraManager
             return result;
         }
 
-        private Vector3 CalculateMovementForAnotherDevice(Vector3 movement, string deviceId)
+        private Vector3 CalculateMovementForAnotherDevice(Vector3 movement, Vector3 position, float fakeDistance, string deviceId)
         {
             CameraInfo cameraInfo = cameras.FirstOrDefault(p => p.DeviceId == deviceId);
             if (cameraInfo == null)
             {
                 return new Vector3();
             }
-            // 有一点需要注意：cameraInfo 中原本配置的Home字段是相对大地的，此时可设置为相对固定相机，从而简化计算？需要测试
-            var toPan= cameraInfo.HomePanToEast + movement.X;
-            // TODO: 由于高度差异造成的tilt微调，暂时无法计算，可能需要估一个，比如观测距离100米远的目标时的一个角度差。
-            var toTilt = -cameraInfo.HomeTiltToHorizon + movement.Y;
-            var toZoom = movement.Z;
 
-            return new Vector3(toPan, toTilt, toZoom);
+            var Yc = fakeDistance;
+            var Xc = Yc * MathF.Tan(movement.X / 180.0f * MathF.PI);
+            var thetaPan = MathF.Atan2(Yc- position.Y, Xc - position.X) / MathF.PI * 180;
+
+            var Zc = Yc * MathF.Tan(movement.Y / 180.0f * MathF.PI);
+            var thetaTilt = MathF.Atan2(Zc - position.Z, -(Yc - position.X)) / MathF.PI * 180;
+
+            // 有一点需要注意：cameraInfo 中原本配置的Home字段是相对大地的，此时可设置为相对固定相机，从而简化计算？需要测试
+            // TODO: 由于高度差异及左右距离造成的pan/tilt微调，暂时无法计算，可能需要估一个，比如观测距离100米远的目标时的一个角度差。已完成
+            var toPan= - cameraInfo.HomePanToEast - thetaPan;
+            var toTilt = -cameraInfo.HomeTiltToHorizon - thetaTilt;
+            var toZoom = movement.Z;
+            
+            return new Vector3(Math.Clamp(toPan, cameraInfo.MinPanDegree, cameraInfo.MaxPanDegree), 
+                Math.Clamp(toTilt, cameraInfo.MinTiltDegree, cameraInfo.MaxTiltDegree),
+                Math.Clamp(toZoom, cameraInfo.MinZoomLevel, cameraInfo.MaxZoomLevel));
         }
 
         internal bool MoveRelativeByImage(RectangleF bBox, string deviceId)
@@ -490,8 +501,8 @@ namespace Service.CameraManager
             
 
             // 计算水平和垂直偏移量
-            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth / 2;
-            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight / 2;
+            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth;
+            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight;
 
             // 计算水平旋转角度
             var HorizontalRotationAngle = MathF.Atan2(offsetX, cameraInfo.FocalLength * status.CameraStatus.ZoomPosition) * 180 / MathF.PI;
@@ -504,15 +515,17 @@ namespace Service.CameraManager
             // TODO: how to find a proper zoomlevel
             double frac = bBox.Width / cameraInfo.VideoWidth;
             float zoom = 0;
-            if (frac > 0.8)
-            {
-                zoom += -0.5f;
-            }
-            else if (frac < 0.6)
-            {
-                zoom += 0.5f;
-            }
-            return new Vector3(HorizontalRotationAngle, VerticalRotationAngle, zoom);
+            //if (frac > 0.8)
+            //{
+            //    zoom += -0.5f;
+            //}
+            //else if (frac < 0.6)
+            //{
+            //    zoom += 0.5f;
+            //}
+            return new Vector3(Math.Clamp(HorizontalRotationAngle, cameraInfo.MinPanDegree, cameraInfo.MaxPanDegree),
+                Math.Clamp(VerticalRotationAngle, cameraInfo.MinTiltDegree, cameraInfo.MaxTiltDegree),
+                zoom);
         }
 
         public Vector3 CalculateMovementFixedDevice(RectangleF bBox, string deviceId)
@@ -526,8 +539,8 @@ namespace Service.CameraManager
             // calculate pan/tilt/zoom
 
             // 计算水平和垂直偏移量
-            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth / 2;
-            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight / 2;
+            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth;
+            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight;
 
             // 计算水平旋转角度
             var HorizontalRotationAngle = MathF.Atan2(offsetX, cameraInfo.FocalLength) * 180 / MathF.PI;

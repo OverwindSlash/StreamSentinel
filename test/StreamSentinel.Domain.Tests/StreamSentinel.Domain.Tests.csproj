@@ -20,7 +20,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\components\Detector.YoloV4Native\Detector.YoloV4Native.csproj" />
     <ProjectReference Include="..\..\src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
+    <ProjectReference Include="..\..\src\components\Handler.FixedDeviceService\Handler.FixedDeviceService.csproj" />
+    <ProjectReference Include="..\..\src\components\Handler.PlateSnapshot\Handler.PlateSnapshotService.csproj" />
     <ProjectReference Include="..\..\src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
+    <ProjectReference Include="..\..\src\components\Publisher.PtzControl\Publisher.PtzControl.csproj" />
     <ProjectReference Include="..\..\src\components\Publisher.TraceOutput\Publisher.TraceOutput.csproj" />
     <ProjectReference Include="..\..\src\components\RegionChecker.DefinitionBased\RegionManager.DefinitionBased.csproj" />
     <ProjectReference Include="..\..\src\components\Snapshot.InMemory\Snapshot.InMemory.csproj" />
@@ -37,7 +40,16 @@
     <None Update="changhudaqiao.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Images\Traffic_001.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="settings_backup.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="settings2.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="settings.json">

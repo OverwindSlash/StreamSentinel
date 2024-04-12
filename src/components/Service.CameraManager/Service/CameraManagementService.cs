@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Service.CameraManager.OnvifCamera;
+using StreamSentinel.Entities.Events.PtzControl;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,7 +38,7 @@ namespace Service.CameraManager.Service
             {
                 return false;
             }
-
+            isCameraMoving = true;
             bool result =false;
             // 依据不同源的命令，进入不同的状态
             switch (target.CommandSource)
@@ -44,7 +46,8 @@ namespace Service.CameraManager.Service
                 case CommandSourceEnum.FixedCamera:
                     // 需要通过固定相机的参数来计算需要相对运动的角度
                     var movement = _cameraController.CalculateMovementFixedDevice(target.BBox, _serviceConfig.FixedDeviceId);
-                    result = _cameraController.PointToTargetForAnotherPtzDevice(movement, _serviceConfig.PtzDeviceId);
+                    Trace.TraceInformation($"Movement: {movement.X}, {movement.Y}, {movement.Z}");
+                    result = _cameraController.PointToTargetForAnotherPtzDevice(movement, _serviceConfig.RelativePosition, _serviceConfig.FakeDistance, _serviceConfig.PtzDeviceId);
 
                     break;
                 case CommandSourceEnum.PtzCamera:
@@ -53,6 +56,7 @@ namespace Service.CameraManager.Service
                 default:
                     break;
             }
+            isCameraMoving = false;
 
             return result;
         }

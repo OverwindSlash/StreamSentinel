@@ -1,13 +1,13 @@
 {
   "Pipeline": {
-    "Uri": "rtsp://192.168.1.40/Cam-778813-MediaProfile00000"
+    "Uri": "D:\\Video\\river.ts"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
     "FullQualifiedClassName": "MediaLoader.OpenCV.VideoLoader",
     "Parameters": [
       "tempId",
-      500
+      100
     ],
     "VideoStride": 2
   },
@@ -38,13 +38,6 @@
         "MinSnapshotWidth": 200,
         "MinSnapshotHeight": 20
       }
-    },
-    {
-      "AssemblyFile": "Handler.FixedDeviceService.dll",
-      "FullQualifiedClassName": "Handler.FixedDeviceService.FixedDeviceAnalysisHandler",
-      "Parameters": [],
-      "Preferences": {
-      }
     }
   ],
   "RegionManager": {
@@ -55,8 +48,8 @@
     ]
   },
   "Publisher": {
-    "AssemblyFile": "Publisher.PtzControl.dll",
-    "FullQualifiedClassName": "Publisher.PtzControl.PtzControlPublisher",
-    "Parameters": ["config.json"]
+    "AssemblyFile": "Publisher.TraceOutput.dll",
+    "FullQualifiedClassName": "Publisher.TraceOutput.TraceOutputPublisher",
+    "Parameters": []
   }
 }
