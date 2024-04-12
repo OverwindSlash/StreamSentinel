@@ -110,13 +110,13 @@ public class VideoLoader : IVideoLoader, IDisposable
             var frameId = (long)_capture.Get(VideoCaptureProperties.PosFrames);
             var offsetMilliSec = (long)_capture.Get(VideoCaptureProperties.PosMsec);
 
-            TimeSpan elapsedTime = DateTime.Now - startTimestamp;
-            var sleepMilliSec = offsetMilliSec - (long)elapsedTime.TotalMilliseconds;
+            //TimeSpan elapsedTime = DateTime.Now - startTimestamp;
+            //var sleepMilliSec = offsetMilliSec - (long)elapsedTime.TotalMilliseconds;
 
-            if (sleepMilliSec > 0)
-            {
-                Thread.Sleep((int)sleepMilliSec);
-            }
+            //if (sleepMilliSec > 0)
+            //{
+            //    Thread.Sleep((int)sleepMilliSec);
+            //}
 
             var frame = new Frame(_deviceId, frameId, offsetMilliSec, image);
             _frameBuffer.Enqueue(frame);
