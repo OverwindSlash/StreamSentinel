@@ -18,11 +18,11 @@ using System.Diagnostics;
 
 namespace Tracker.DeepSortTracker
 {
-    internal class DeepSortTracker : IObjectTracker
+    public class DeepSortTracker : IObjectTracker
     {
         private readonly Matcher matcher;
         private readonly MatcherOption options;
-        public DeepSortTracker()
+        public DeepSortTracker(object placeholder1, object placeholder2)
         {
             options = new MatcherOption();
             matcher = new DeepSortMatcher(
@@ -37,7 +37,7 @@ namespace Tracker.DeepSortTracker
         public void Track(Mat scene, List<DetectedObject> detectedObjects)
         {
             IReadOnlyList<ITrack> tracks = matcher.Run(scene.ToBitmap(), detectedObjects.ToArray<IPrediction>());
-            Trace.TraceInformation($"Tracks count: {tracks.Count}; DetectedObject TrackId: {detectedObjects[0].TrackingId}") ;
+            //Trace.TraceInformation($"Tracks count: {tracks.Count}; DetectedObject TrackId: {detectedObjects[0].TrackingId}") ;
         }
 
         private static IAppearanceExtractor ConstructAppearanceExtractorFromOptions(MatcherOption options)

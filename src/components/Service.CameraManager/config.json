@@ -3,9 +3,9 @@
   "PtzDeviceId": "Cam-3345a6",
   "FixedDeviceId": "Cam-778813",
   "RelativePosition": {
-    "X": 0.65,
-    "Y": -0.90,
-    "Z": -0.5
+    "X": 0.6,
+    "Y": -1.00,
+    "Z": -0.4
   },
-  "FakeDistance": -6.0
+  "FakeDistance": -5.0
 }

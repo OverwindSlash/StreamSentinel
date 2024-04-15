@@ -18,7 +18,7 @@ namespace Handler.FixedDeviceService
         public StreamSentinel.Entities.AnalysisEngine.AnalysisResult Analyze(StreamSentinel.Entities.AnalysisEngine.Frame frame)
         {
 
-            var minSeq = frame.DetectedObjects.OrderBy(p => p.TrackId).FirstOrDefault();
+            var minSeq = frame.DetectedObjects.OrderByDescending(p => p.TrackId).FirstOrDefault();
             if (minSeq != null)
             {
                 // publish to camera service

@@ -140,6 +140,7 @@ namespace StreamSentinel.Pipeline
                 while (_mediaLoader.BufferedFrameCount != 0 || _mediaLoader.IsOpened)
                 {
                     var frame = _mediaLoader.RetrieveFrame();
+                    if (frame == null) { continue; }
                     frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
                     _regionManager.CalcRegionProperties(frame.DetectedObjects);
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
@@ -208,7 +209,7 @@ namespace StreamSentinel.Pipeline
                 image.PutText("L:" + detectedObject.LaneIndex.ToString(), new Point(bbox.X + 20, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            //Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
+            Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
 
             Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             Cv2.WaitKey(1);

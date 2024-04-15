@@ -1,6 +1,9 @@
 {
   "Pipeline": {
-    "Uri": "rtsp://192.168.1.40/Cam-778813-MediaProfile00000"
+    "Uri": "rtsp://192.168.1.40/Cam-778813-MediaProfile00000",
+    //"Uri": "rtsp://192.168.1.40/phone.sdp"
+    //"Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1"
+
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
@@ -20,8 +23,8 @@
     "Thresh": 0.5
   },
   "Tracker": {
-    "AssemblyFile": "Tracker.SortTracker.dll",
-    "FullQualifiedClassName": "Tracker.SortTracker.SortTracker",
+    "AssemblyFile": "Tracker.DeepSortTracker.dll",
+    "FullQualifiedClassName": "Tracker.DeepSortTracker.DeepSortTracker",
     "Parameters": [
       0.1,
       75

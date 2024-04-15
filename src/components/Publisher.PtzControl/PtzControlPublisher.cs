@@ -47,6 +47,10 @@ namespace Publisher.PtzControl
                 {
                     ThreadPool.QueueUserWorkItem(state =>
                     {
+                        if (isUnderFixedControl)
+                        {
+                            return;
+                        }
                         cameraManagementService.LookTo(ptzEvent.Target);
                     });
                     return Task.FromResult(true);

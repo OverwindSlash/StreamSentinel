@@ -22,7 +22,7 @@ namespace Handler.PlateSnapshotService
             // 条件：当main pipeline 处于非控制期时可进行相对ptz控制
             // 说明：此handler 只负责跟踪，牌照抓拍由snapshot handler负责
             //       
-            var minSeq = frame.DetectedObjects.OrderBy(p => p.TrackId).FirstOrDefault();
+            var minSeq = frame.DetectedObjects.OrderByDescending(p => p.TrackId).FirstOrDefault();
             if (minSeq != null)
             {
                 // publish to camera service

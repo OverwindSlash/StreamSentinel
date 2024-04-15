@@ -18,8 +18,8 @@ namespace CameraManager
 
             var target = new TargetBase
             {
-                BBox = new System.Drawing.RectangleF(480, 540, 100, 100),
-                //BBox = new System.Drawing.RectangleF(1440, 540, 100, 100),
+                //BBox = new System.Drawing.RectangleF(480, 540, 100, 100),
+                BBox = new System.Drawing.RectangleF(1440, 540, 100, 100),
                 //BBox = new System.Drawing.RectangleF(1440, 810, 100, 100),
                 //BBox = new System.Drawing.RectangleF(480, 810, 100, 100),
 

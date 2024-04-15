@@ -454,10 +454,12 @@ namespace Service.CameraManager
 
             var Yc = fakeDistance;
             var Xc = Yc * MathF.Tan(movement.X / 180.0f * MathF.PI);
-            var thetaPan = MathF.Atan2(Yc- position.Y, Xc - position.X) / MathF.PI * 180;
+            // 1/2 为估计的转轴偏移,需测试，不一定需要
+            var thetaPan = MathF.Atan2((Yc - position.Y), (Xc - position.X)) / MathF.PI * 180;
+            //var thetaPan = MathF.Atan((Xc - position.X)/(Yc - position.Y)) / MathF.PI * 180;
 
             var Zc = Yc * MathF.Tan(movement.Y / 180.0f * MathF.PI);
-            var thetaTilt = MathF.Atan2(Zc - position.Z, -(Yc - position.X)) / MathF.PI * 180;
+            var thetaTilt = MathF.Atan2((Zc - position.Z)/2, -(Yc - position.X)) / MathF.PI * 180;
 
             // 有一点需要注意：cameraInfo 中原本配置的Home字段是相对大地的，此时可设置为相对固定相机，从而简化计算？需要测试
             // TODO: 由于高度差异及左右距离造成的pan/tilt微调，暂时无法计算，可能需要估一个，比如观测距离100米远的目标时的一个角度差。已完成
@@ -498,11 +500,12 @@ namespace Service.CameraManager
             var status = moveStatus[deviceId];
 
             // calculate pan/tilt/zoom
-            
 
-            // 计算水平和垂直偏移量
-            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth;
-            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight;
+
+            // 1/2 为估计的转轴偏移
+            // 计算水平和垂直偏移量 
+            float offsetX = (float)(bBox.X - cameraInfo.VideoWidth / 2) / cameraInfo.VideoWidth * cameraInfo.CCDWidth/2;
+            float offsetY = (float)(bBox.Y - cameraInfo.VideoHeight / 2) / cameraInfo.VideoHeight * cameraInfo.CCDHeight/2;
 
             // 计算水平旋转角度
             var HorizontalRotationAngle = MathF.Atan2(offsetX, cameraInfo.FocalLength * status.CameraStatus.ZoomPosition) * 180 / MathF.PI;
