@@ -1,6 +1,7 @@
 ﻿using StreamSentinel.Components.Interfaces.EventPublisher;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Pipeline;
+using StreamSentinel.Eventbus;
 
 namespace StreamSentinel.Components.Interfaces.AnalysisEngine
 {

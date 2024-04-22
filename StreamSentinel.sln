@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.PtzControl", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.FixedDeviceService", "src\components\Handler.FixedDeviceService\Handler.FixedDeviceService.csproj", "{E038E983-610C-4141-B161-D5DC66180F92}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Handler.SnapshotEventService", "src\components\Handler.SnapshotEventService\Handler.SnapshotEventService.csproj", "{2E31D936-37C3-4292-A507-E7C19414098A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -161,6 +163,10 @@ Global
 		{E038E983-610C-4141-B161-D5DC66180F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E038E983-610C-4141-B161-D5DC66180F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E038E983-610C-4141-B161-D5DC66180F92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E31D936-37C3-4292-A507-E7C19414098A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E31D936-37C3-4292-A507-E7C19414098A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E31D936-37C3-4292-A507-E7C19414098A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E31D936-37C3-4292-A507-E7C19414098A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -192,6 +198,7 @@ Global
 		{813FFFA4-3B16-4029-A6A8-170C2AA4BB56} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 		{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 		{E038E983-610C-4141-B161-D5DC66180F92} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
+		{2E31D936-37C3-4292-A507-E7C19414098A} = {E5AA8350-B13D-479D-BA11-F3635B51B793}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A55C749-0BFF-4EFD-8499-12A2CB3B5B07}

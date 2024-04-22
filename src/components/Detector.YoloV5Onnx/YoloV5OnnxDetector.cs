@@ -4,7 +4,9 @@ using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Entities.AnalysisEngine;
+using StreamSentinel.Pipeline.Settings;
 using System.Drawing;
+using System.Linq;
 
 namespace Detector.YoloV5Onnx
 {
@@ -12,12 +14,40 @@ namespace Detector.YoloV5Onnx
     {
         private IYoloPredictor _predictor;
         private List<DetectionObjectType> _detectionEnabledTypes = new();
-
+        private ISetting _setting;
         public void PrepareEnv(Dictionary<string, string>? envParam = null)
         {
 
         }
+        public void Init(ISetting setting)
+        {
+            _setting = setting;
+            if (_setting is DetectorSettings)
+            {
+                var config = _setting as DetectorSettings;
+                if (string.IsNullOrEmpty(config.ModelPath))
+                {
+                    throw new ArgumentException("initParam does not contain model_path element.");
+                }
 
+                SessionOptions option = null;
+                if (config.UseCuda)
+                {
+                    option = SessionOptions.MakeSessionOptionWithCudaProvider();
+                }
+
+                _predictor = new YoloPredictor<Yolo640v5>(File.ReadAllBytes(config.ModelPath), option);
+
+                foreach (var type in config.ObjType)
+                {
+                    _detectionEnabledTypes.Add((DetectionObjectType)type);
+                }
+
+                // Avoid first time-consuming call in test cases.
+                using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
+                Detect(mat, 0.3F);
+            }
+        }
         public void Init(Dictionary<string, string>? initParam = null)
         {
             if (!initParam.TryGetValue("model_path", out var modelPath))
@@ -40,7 +70,8 @@ namespace Detector.YoloV5Onnx
             // TODO: Define detection object type in config file.
             _detectionEnabledTypes.AddRange(new DetectionObjectType[]
             {
-                DetectionObjectType.Person
+                DetectionObjectType.Person,
+                DetectionObjectType.TV
             });
 
             // Avoid first time-consuming call in test cases.
@@ -123,5 +154,7 @@ namespace Detector.YoloV5Onnx
         {
             throw new NotImplementedException();
         }
+
+        
     }
 }

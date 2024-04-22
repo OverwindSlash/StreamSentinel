@@ -1,13 +1,14 @@
 {
   "Pipeline": {
-    "Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1"
+    "Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1",
+    "Name": "Pipeline2"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
     "FullQualifiedClassName": "MediaLoader.OpenCV.VideoLoader",
     "Parameters": [
       "tempId",
-      500
+      100
     ],
     "VideoStride": 2
   },
@@ -17,7 +18,8 @@
     "Parameters": [],
     "ModelPath": "Models\\yolov5m.onnx",
     "UseCuda": true,
-    "Thresh": 0.5
+    "Thresh": 0.5,
+    "ObjType": [ 5,67]
   },
   "Tracker": {
     "AssemblyFile": "Tracker.DeepSortTracker.dll",
@@ -29,14 +31,17 @@
   },
   "AnalysisHandlers": [
     {
-      "AssemblyFile": "Snapshot.InMemory.dll",
-      "FullQualifiedClassName": "Snapshot.InMemory.InMemorySnapshotService",
+      "AssemblyFile": "Handler.SnapshotEventService.dll",
+      "FullQualifiedClassName": "Handler.SnapshotEventService.SnapshotEventAnalysisHandler",
       "Parameters": [],
       "Preferences": {
         "SnapshotsDir": "Snapshots",
         "MaxSnapshots": 10,
         "MinSnapshotWidth": 200,
-        "MinSnapshotHeight": 20
+        "MinSnapshotHeight": 20,
+        "SenderPipeline": "Pipeline2",
+        "TargetPipeline": "Pipeline1",
+        "SnapType": "TV"
       }
     },
     {
@@ -44,6 +49,8 @@
       "FullQualifiedClassName": "Handler.PlateSnapshotService.PlateSnapshotAnalysisHandler",
       "Parameters": [],
       "Preferences": {
+        "SenderPipeline": "Pipeline2",
+        "TargetPipeline": "Pipeline1"
       }
     }
   ],

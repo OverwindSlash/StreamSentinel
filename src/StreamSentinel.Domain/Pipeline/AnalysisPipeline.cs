@@ -14,6 +14,8 @@ using StreamSentinel.Pipeline.Settings;
 using System.Reflection;
 using StreamSentinel.Components.Interfaces.EventPublisher;
 using System.Diagnostics;
+using StreamSentinel.Eventbus;
+using Abp.Configuration;
 
 namespace StreamSentinel.Pipeline
 {
@@ -91,6 +93,10 @@ namespace StreamSentinel.Pipeline
                 _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)handler);
                 _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)handler);
                 _services.AddTransient<IAnalysisHandler>(sp => handler);
+                if (handler is IEventbusHandler)
+                {
+                    EventBus.Instance.Subscribe(_pipeLineSettings.Name, ((IEventbusHandler)handler).HandleNotification);
+                }
             }
 
             _provider = _services.BuildServiceProvider();
@@ -120,11 +126,11 @@ namespace StreamSentinel.Pipeline
             _mediaLoader.Open(_pipeLineSettings.Uri);
 
             _objectDetector = _provider.GetService<IObjectDetector>();
-            _objectDetector.Init(new Dictionary<string, string>() {
-                {"model_path", _detectorSettings.ModelPath},
-                {"use_cuda", _detectorSettings.UseCuda.ToString()}
-            });
-
+            //_objectDetector.Init(new Dictionary<string, string>() {
+            //    {"model_path", _detectorSettings.ModelPath},
+            //    {"use_cuda", _detectorSettings.UseCuda.ToString() }
+            //});
+            _objectDetector.Init(_detectorSettings);
             _regionManager = _provider.GetService<IRegionManager>();
             _regionManager.LoadAnalysisDefinition(_regionManagerSettings.Parameters[0], _mediaLoader.MediaWidth, _mediaLoader.MediaHeight);
 
@@ -209,7 +215,7 @@ namespace StreamSentinel.Pipeline
                 image.PutText("L:" + detectedObject.LaneIndex.ToString(), new Point(bbox.X + 20, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
+            //Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
 
             Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             Cv2.WaitKey(1);

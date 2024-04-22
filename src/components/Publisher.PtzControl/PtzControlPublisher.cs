@@ -10,6 +10,7 @@ namespace Publisher.PtzControl
         private readonly CameraManagementService cameraManagementService;
         private int trackingId = -1;
         private bool isUnderFixedControl = false;
+        private bool isUnderPtzControl =false;
         public PtzControlPublisher(string configFile)
         {
             cameraManagementService = new CameraManagementService(configFile);
@@ -30,6 +31,11 @@ namespace Publisher.PtzControl
                     ThreadPool.QueueUserWorkItem( state =>
                     {
                         isUnderFixedControl = true;
+                        while (isUnderPtzControl)
+                        {
+                            Task.Delay(100);
+                            continue;
+                        }
                         cameraManagementService.LookTo(fixedEvent.Target);
                         isUnderFixedControl = false;
                     });
@@ -51,7 +57,9 @@ namespace Publisher.PtzControl
                         {
                             return;
                         }
+                        isUnderPtzControl=true;
                         cameraManagementService.LookTo(ptzEvent.Target);
+                        isUnderPtzControl = false;
                     });
                     return Task.FromResult(true);
                 }

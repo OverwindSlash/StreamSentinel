@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
     <ProjectReference Include="..\..\src\components\Handler.FixedDeviceService\Handler.FixedDeviceService.csproj" />
     <ProjectReference Include="..\..\src\components\Handler.PlateSnapshot\Handler.PlateSnapshotService.csproj" />
+    <ProjectReference Include="..\..\src\components\Handler.SnapshotEventService\Handler.SnapshotEventService.csproj" />
     <ProjectReference Include="..\..\src\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
     <ProjectReference Include="..\..\src\components\Publisher.PtzControl\Publisher.PtzControl.csproj" />
     <ProjectReference Include="..\..\src\components\Publisher.TraceOutput\Publisher.TraceOutput.csproj" />

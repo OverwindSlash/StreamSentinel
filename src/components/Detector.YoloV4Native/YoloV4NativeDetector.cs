@@ -2,6 +2,7 @@
 using OpenCvSharp;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Entities.AnalysisEngine;
+using StreamSentinel.Pipeline.Settings;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -276,6 +277,11 @@ namespace Detector.YoloV4Native
         private void ReleaseUnmanagedResources()
         {
             DisposeYolo();
+        }
+
+        public void Init(ISetting setting)
+        {
+            throw new NotImplementedException();
         }
 
         ~YoloV4NativeDetector()
