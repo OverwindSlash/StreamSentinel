@@ -8,7 +8,7 @@ namespace StreamSentinel.Eventbus
 {
     public class PipelineSnapshotEventArgs: NotificationEventArgs
     {
-
+        public int TrackId {  get; set; }
         public PipelineSnapshotEventArgs(string message, string source, string senderPipeline, string targetPipeline)
             : base(message, source, senderPipeline, targetPipeline)
         {

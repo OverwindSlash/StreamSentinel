@@ -24,6 +24,7 @@ namespace Snapshot.InMemory
         public string Name => nameof(InMemorySnapshotService);
 
         private IDomainEventPublisher _domainEventPublisher;
+        private string _senderPipeline;
 
         public InMemorySnapshotService(Dictionary<string, string> preferences)
         {
@@ -34,6 +35,7 @@ namespace Snapshot.InMemory
             _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
             _minSnapshotWidth = int.Parse(preferences["MinSnapshotWidth"]);
             _maxSnapshotHeight = int.Parse(preferences["MinSnapshotHeight"]);
+            _senderPipeline = preferences["SenderPipeline"];
 
             var currentDirectory = Directory.GetCurrentDirectory();
             var combine = Path.Combine(currentDirectory, _snapshotsDir);
@@ -213,7 +215,7 @@ namespace Snapshot.InMemory
             string filename = id.Replace(':', '_');
             if (highestSnapshot.Width > _minSnapshotWidth && highestSnapshot.Height > _maxSnapshotHeight)
             {
-                highestSnapshot.SaveImage($"{_snapshotsDir}/{timestamp}_{filename}.jpg");
+                highestSnapshot.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{timestamp}_{filename}.jpg");
             }
         }
         #endregion

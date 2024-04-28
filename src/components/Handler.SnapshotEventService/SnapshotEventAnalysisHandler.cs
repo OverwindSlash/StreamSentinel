@@ -6,6 +6,7 @@ using OpenCvSharp;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Eventbus;
+using StreamSentinel.DataStructures;
 
 namespace Handler.SnapshotEventService
 {
@@ -27,6 +28,9 @@ namespace Handler.SnapshotEventService
         public string Name => nameof(SnapshotEventAnalysisHandler);
 
         private IDomainEventPublisher _domainEventPublisher;
+
+        private const float ImageQualityThreshold = 100.0f;
+        private readonly ConcurrentBoundedQueue<int> _doneSnapshotList = new ConcurrentBoundedQueue<int>(10);
 
         public SnapshotEventAnalysisHandler(Dictionary<string, string> preferences)
         {
@@ -84,8 +88,19 @@ namespace Handler.SnapshotEventService
                 {
                     continue;
                 }
+                if (_doneSnapshotList.Contains(obj.TrackId))
+                {
+                    continue;
+                }
                 Mat objSnapshot = frame.Scene.SubMat(new Rect(obj.X, obj.Y, obj.Width, obj.Height)).Clone();
-                AddSnapshotOfObjectById(obj.Id, CalculateFactor(obj), objSnapshot);
+                var f = CalculateFactor(obj);
+                AddSnapshotOfObjectById(obj.Id, f, objSnapshot);
+
+                if ( f > ImageQualityThreshold)
+                {
+                    SendNotification(obj.Id, obj.TrackId);
+                    _doneSnapshotList.Enqueue(obj.TrackId);
+                }
             }
         }
 
@@ -214,10 +229,10 @@ namespace Handler.SnapshotEventService
             }
 
             _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
-            if (id.Contains(_snapType))
-            {
-                SendNotification(id);
-            }
+            //if (id.Contains(_snapType))
+            //{
+            //    SendNotification(id);
+            //}
         }
 
         private void SaveBestSnapshot(string id, Mat highestSnapshot)
@@ -226,7 +241,7 @@ namespace Handler.SnapshotEventService
             string filename = id.Replace(':', '_');
             if (highestSnapshot.Width > _minSnapshotWidth && highestSnapshot.Height > _maxSnapshotHeight)
             {
-                highestSnapshot.SaveImage($"{_snapshotsDir}/{timestamp}_{filename}.jpg");
+                highestSnapshot.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{timestamp}_{filename}.jpg");
             }
         }
         #endregion
@@ -239,11 +254,11 @@ namespace Handler.SnapshotEventService
             }
         }
 
-        private void SendNotification(string msg)
+        private void SendNotification(string msg, int trackId)
         {
             var eventArgs =
                 new PipelineSnapshotEventArgs($"SnapshotEvent: {msg}", this.Name, _senderPipeline, _targetPipeline);
-
+            eventArgs.TrackId = trackId;
             EventBus.Instance.PublishNotification(eventArgs);
         }
     }

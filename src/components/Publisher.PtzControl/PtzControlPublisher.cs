@@ -38,6 +38,7 @@ namespace Publisher.PtzControl
                         }
                         cameraManagementService.LookTo(fixedEvent.Target);
                         isUnderFixedControl = false;
+                        // 给pipeline发送可以拍摄的通知。考虑到延迟情况，又不能这样使用
                     });
                     
                     return Task.FromResult(true);

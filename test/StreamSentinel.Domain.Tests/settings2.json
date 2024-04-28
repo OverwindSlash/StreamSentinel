@@ -37,7 +37,7 @@
       "Preferences": {
         "SnapshotsDir": "Snapshots",
         "MaxSnapshots": 10,
-        "MinSnapshotWidth": 200,
+        "MinSnapshotWidth": 100,
         "MinSnapshotHeight": 20,
         "SenderPipeline": "Pipeline2",
         "TargetPipeline": "Pipeline1",

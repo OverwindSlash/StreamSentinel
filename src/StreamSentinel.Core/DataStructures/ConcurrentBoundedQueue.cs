@@ -126,5 +126,5 @@ public class ConcurrentBoundedQueue<T> : IEnumerable<T>, IConcurrentBoundedQueue
         {
             return GetEnumerator();
         }
-        #endregion
-    }
+    #endregion
+}

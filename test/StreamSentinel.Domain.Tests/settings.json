@@ -39,8 +39,9 @@
       "Preferences": {
         "SnapshotsDir": "Snapshots",
         "MaxSnapshots": 10,
-        "MinSnapshotWidth": 200,
-        "MinSnapshotHeight": 20
+        "MinSnapshotWidth": 100,
+        "MinSnapshotHeight": 20,
+        "SenderPipeline": "Pipeline1"
       }
     },
     {
@@ -49,7 +50,8 @@
       "Parameters": [],
       "Preferences": {
         "Class": "Person",
-        "MaxMissedCount": 24
+        "MaxMissedCount": 24,
+        "MaxTrackingFrameCount": 128
       }
     }
   ],
