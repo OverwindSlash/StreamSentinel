@@ -7,16 +7,28 @@ using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Eventbus;
 using StreamSentinel.DataStructures;
+using System.Diagnostics;
 
 namespace Handler.SnapshotEventService
 {
-    public class SnapshotEventAnalysisHandler : IAnalysisHandler, IDisposable
+    public class SnapshotEventAnalysisHandler : IAnalysisHandler, IDisposable, IEventbusHandler
     {
+        public class Snapshot
+        {
+            public int RelativeId { get; set; }
+            public Mat Mat { get; set; }
+
+            public Snapshot(Mat snapshot, int relativeId)
+            {
+                Mat = snapshot;
+                RelativeId = relativeId;
+            }
+        }
         // frameId -> Scene
         private readonly ConcurrentDictionary<long, Mat> _scenesOfFrame;
 
         // object snapshot list by factor -> (factor, objectMat)
-        private readonly ConcurrentDictionary<string, SortedList<float, Mat>> _snapshotsByConfidence;
+        private readonly ConcurrentDictionary<string, SortedList<float, Snapshot>> _snapshotsByConfidence;
 
         private string _snapshotsDir = "Snapshots";
         private int _maxObjectSnapshots = 10;
@@ -31,11 +43,12 @@ namespace Handler.SnapshotEventService
 
         private const float ImageQualityThreshold = 100.0f;
         private readonly ConcurrentBoundedQueue<int> _doneSnapshotList = new ConcurrentBoundedQueue<int>(10);
+        private int _relatedTrackId = -1;
 
         public SnapshotEventAnalysisHandler(Dictionary<string, string> preferences)
         {
             _scenesOfFrame = new ConcurrentDictionary<long, Mat>();
-            _snapshotsByConfidence = new ConcurrentDictionary<string, SortedList<float, Mat>>();
+            _snapshotsByConfidence = new ConcurrentDictionary<string, SortedList<float, Snapshot>>();
 
             _snapshotsDir = preferences["SnapshotsDir"];
             _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
@@ -96,7 +109,8 @@ namespace Handler.SnapshotEventService
                 var f = CalculateFactor(obj);
                 AddSnapshotOfObjectById(obj.Id, f, objSnapshot);
 
-                if ( f > ImageQualityThreshold)
+                // send a event of job done
+                if ( f > ImageQualityThreshold && _snapshotsByConfidence[obj.Id].Count > 8)
                 {
                     SendNotification(obj.Id, obj.TrackId);
                     _doneSnapshotList.Enqueue(obj.TrackId);
@@ -115,17 +129,17 @@ namespace Handler.SnapshotEventService
         {
             if (!_snapshotsByConfidence.ContainsKey(id))
             {
-                _snapshotsByConfidence.TryAdd(id, new SortedList<float, Mat>());
+                _snapshotsByConfidence.TryAdd(id, new SortedList<float, Snapshot>());
             }
 
-            SortedList<float, Mat> snapshotsById = _snapshotsByConfidence[id];
+            SortedList<float, Snapshot> snapshotsById = _snapshotsByConfidence[id];
             if (!snapshotsById.ContainsKey(confidence))
             {
-                snapshotsById.Add(confidence, snapshot);
+                snapshotsById.Add(confidence, new Snapshot(snapshot, _relatedTrackId));
             }
             else
             {
-                snapshotsById[confidence] = snapshot;
+                snapshotsById[confidence] = new Snapshot(snapshot, _relatedTrackId);
             }
 
             if (snapshotsById.Count > _maxObjectSnapshots)
@@ -153,11 +167,11 @@ namespace Handler.SnapshotEventService
             return new Mat();
         }
 
-        public SortedList<float, Mat> GetObjectSnapshotsByObjectId(string id)
+        public SortedList<float, Snapshot> GetObjectSnapshotsByObjectId(string id)
         {
             if (!_snapshotsByConfidence.ContainsKey(id))
             {
-                return new SortedList<float, Mat>();
+                return new SortedList<float, Snapshot>();
             }
 
             return _snapshotsByConfidence[id];
@@ -217,31 +231,27 @@ namespace Handler.SnapshotEventService
                 return;
             }
 
-            SortedList<float, Mat> snapshots = _snapshotsByConfidence[id];
+            SortedList<float, Snapshot> snapshots = _snapshotsByConfidence[id];
 
             var highestConfidence = snapshots.Keys.Max();
-            Mat highestSnapshot = snapshots[highestConfidence];
+            var highestSnapshot = snapshots[highestConfidence];
             SaveBestSnapshot(id, highestSnapshot);
 
-            foreach (Mat snapshot in snapshots.Values)
+            foreach (var snapshot in snapshots.Values)
             {
-                snapshot.Dispose();
+                snapshot.Mat.Dispose();
             }
 
             _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
-            //if (id.Contains(_snapType))
-            //{
-            //    SendNotification(id);
-            //}
         }
 
-        private void SaveBestSnapshot(string id, Mat highestSnapshot)
+        private void SaveBestSnapshot(string id, Snapshot highestSnapshot)
         {
             string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
             string filename = id.Replace(':', '_');
-            if (highestSnapshot.Width > _minSnapshotWidth && highestSnapshot.Height > _maxSnapshotHeight)
+            if (highestSnapshot.Mat.Width > _minSnapshotWidth && highestSnapshot.Mat.Height > _maxSnapshotHeight)
             {
-                highestSnapshot.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{timestamp}_{filename}.jpg");
+                highestSnapshot.Mat.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{highestSnapshot.RelativeId}_{timestamp}_{filename}.jpg");
             }
         }
         #endregion
@@ -256,10 +266,27 @@ namespace Handler.SnapshotEventService
 
         private void SendNotification(string msg, int trackId)
         {
-            var eventArgs =
-                new PipelineSnapshotEventArgs($"SnapshotEvent: {msg}", this.Name, _senderPipeline, _targetPipeline);
-            eventArgs.TrackId = trackId;
-            EventBus.Instance.PublishNotification(eventArgs);
+            var e =
+                new PipelineSnapshotDoneEventArgs($"SnapshotDoneEvent: {msg}", this.Name, _senderPipeline, _targetPipeline);
+            e.TrackId = trackId;
+            Trace.TraceInformation($"{this.Name} send PipelineSnapshotDoneEventArgs notification from {e.SenderPipeline}: {e.Message}");
+
+            EventBus.Instance.PublishNotification(e);
+        }
+
+        public void HandleNotification(NotificationEventArgs e)
+        {
+            switch (e)
+            {
+                case PipelineLockTargetEventArgs pipelineLockTargetEventArgs:
+                    
+                    Trace.TraceInformation($"{this.Name} received PipelineLockTargetEventArgs notification from {e.SenderPipeline}: {e.Message}");
+                    _relatedTrackId = pipelineLockTargetEventArgs.TrackId;
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }

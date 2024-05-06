@@ -45,12 +45,16 @@
       }
     },
     {
-      "AssemblyFile": "Handler.PlateSnapshotService.dll",
-      "FullQualifiedClassName": "Handler.PlateSnapshotService.PlateSnapshotAnalysisHandler",
+      "AssemblyFile": "Handler.PlateTrackingService.dll",
+      "FullQualifiedClassName": "Handler.PlateTrackingService.PlateTrackingAnalysisHandler",
       "Parameters": [],
       "Preferences": {
         "SenderPipeline": "Pipeline2",
-        "TargetPipeline": "Pipeline1"
+        "TargetPipeline": "Pipeline1",
+        "DetectType1": "Person",
+        "DetectType2": "TV",
+        "MaxMissedFrame": 24,
+        "MaxNoDetectionFrameCount": 36
       }
     }
   ],

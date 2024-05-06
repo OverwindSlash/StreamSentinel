@@ -53,13 +53,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.TraceOutput", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.CameraManager", "src\components\Service.CameraManager\Service.CameraManager.csproj", "{2DE4F1D8-D673-491D-8144-433D12613752}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.PlateSnapshotService", "src\components\Handler.PlateSnapshot\Handler.PlateSnapshotService.csproj", "{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.PlateTrackingService", "src\components\Handler.PlateSnapshot\Handler.PlateTrackingService.csproj", "{813FFFA4-3B16-4029-A6A8-170C2AA4BB56}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.PtzControl", "src\components\Publisher.PtzControl\Publisher.PtzControl.csproj", "{4F4AD31C-9F95-4CA9-A4E3-34F891E15BAB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.FixedDeviceService", "src\components\Handler.FixedDeviceService\Handler.FixedDeviceService.csproj", "{E038E983-610C-4141-B161-D5DC66180F92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Handler.SnapshotEventService", "src\components\Handler.SnapshotEventService\Handler.SnapshotEventService.csproj", "{2E31D936-37C3-4292-A507-E7C19414098A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.SnapshotEventService", "src\components\Handler.SnapshotEventService\Handler.SnapshotEventService.csproj", "{2E31D936-37C3-4292-A507-E7C19414098A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

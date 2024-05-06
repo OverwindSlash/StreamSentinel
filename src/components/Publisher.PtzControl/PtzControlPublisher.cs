@@ -30,12 +30,12 @@ namespace Publisher.PtzControl
                     
                     ThreadPool.QueueUserWorkItem( state =>
                     {
-                        isUnderFixedControl = true;
                         while (isUnderPtzControl)
                         {
                             Task.Delay(100);
                             continue;
                         }
+                        isUnderFixedControl = true;
                         cameraManagementService.LookTo(fixedEvent.Target);
                         isUnderFixedControl = false;
                         // 给pipeline发送可以拍摄的通知。考虑到延迟情况，又不能这样使用

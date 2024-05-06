@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace StreamSentinel.Eventbus
 {
-    public class PipelineSnapshotEventArgs: NotificationEventArgs
+    public class PipelineLockTargetEventArgs : NotificationEventArgs
     {
-        public int TrackId {  get; set; }
-        public PipelineSnapshotEventArgs(string message, string source, string senderPipeline, string targetPipeline)
+        public int TrackId { get; set; }
+        public PipelineLockTargetEventArgs(string message, string source, string senderPipeline, string targetPipeline)
             : base(message, source, senderPipeline, targetPipeline)
         {
         }

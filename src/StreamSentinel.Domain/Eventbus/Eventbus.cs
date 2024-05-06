@@ -43,7 +43,7 @@ namespace StreamSentinel.Eventbus
         {
             foreach (var subscription in subscriptions)
             {
-                if (subscription.Key != e.SenderPipeline && subscription.Key == e.TargetPipeline)
+                if (/*subscription.Key != e.SenderPipeline && */subscription.Key == e.TargetPipeline)
                 {
                     foreach (var handler in subscription.Value)
                     {

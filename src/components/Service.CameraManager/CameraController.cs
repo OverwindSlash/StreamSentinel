@@ -516,16 +516,16 @@ namespace Service.CameraManager
 
             // 计算相机需要变焦的倍数
             // TODO: how to find a proper zoomlevel
-            double frac = bBox.Width / cameraInfo.VideoWidth;
+            double frac = bBox.Height / cameraInfo.VideoHeight;
             float zoom = 0;
-            //if (frac > 0.8)
-            //{
-            //    zoom += -0.5f;
-            //}
-            //else if (frac < 0.6)
-            //{
-            //    zoom += 0.5f;
-            //}
+            if (frac > 0.9)
+            {
+                zoom += -0.5f;
+            }
+            else if (frac < 0.6)
+            {
+                zoom += 0.5f;
+            }
             return new Vector3(Math.Clamp(HorizontalRotationAngle, cameraInfo.MinPanDegree, cameraInfo.MaxPanDegree),
                 Math.Clamp(VerticalRotationAngle, cameraInfo.MinTiltDegree, cameraInfo.MaxTiltDegree),
                 zoom);

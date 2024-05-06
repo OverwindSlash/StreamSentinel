@@ -23,12 +23,16 @@ namespace Handler.FixedDeviceService
         //private readonly ConcurrentBoundedQueue<int> _doneTrackingList = new ConcurrentBoundedQueue<int>(3);
         private int _lastDoneTrackingTarget = -1;
         private int MaxTrackingFrameCount = 128;
-
+        private int _continuousTrackingCount = 0;
+        private string _senderPipeline;
+        private string _targetPipeline;
         public FixedDeviceAnalysisHandler(Dictionary<string, string> preferences)
         {
             _class = preferences["Class"];
             MaxMissedCount = int.Parse(preferences["MaxMissedCount"]);
             MaxTrackingFrameCount = int.Parse(preferences["MaxTrackingFrameCount"]);
+            _senderPipeline = preferences["SenderPipeline"];
+            _targetPipeline = preferences["TargetPipeline"];
         }
 
         public StreamSentinel.Entities.AnalysisEngine.AnalysisResult Analyze(StreamSentinel.Entities.AnalysisEngine.Frame frame)
@@ -42,7 +46,7 @@ namespace Handler.FixedDeviceService
             {
                 return new AnalysisResult(true);
             }
-
+            
             if (!targets.Any(p => p.TrackId == _currentTrackId))
             {
                 _missedCount++;
@@ -57,13 +61,24 @@ namespace Handler.FixedDeviceService
             }
             else
             {
-                return new AnalysisResult(true);
+                if (_continuousTrackingCount++ < MaxTrackingFrameCount)
+                {
+                    return new AnalysisResult(true);
+
+                }
+                else
+                {
+                    _continuousTrackingCount = 0;
+                    //
+                    _lastDoneTrackingTarget = _currentTrackId;
+                }
             }
+            
+            
 
             // event response
             // 在收到通知时，编号改为次大
-            //if (_isTrackingDone)
-            //{
+
             // remove current object done tracking
             var current = frame.DetectedObjects.FirstOrDefault(p => p.TrackId == _lastDoneTrackingTarget);
             if (current != null)
@@ -71,10 +86,6 @@ namespace Handler.FixedDeviceService
                 frame.DetectedObjects.Remove(current);
 
             }
-
-            //    _isTrackingDone = false;
-            //}
-
 
 
             var maxSeq = targets.OrderByDescending(p => p.TrackId).FirstOrDefault();
@@ -93,6 +104,7 @@ namespace Handler.FixedDeviceService
                 _currentTrackId = maxSeq.TrackId;
                 _missedCount = 0;
 
+                SendLockTargetNotification(maxSeq.TrackId);
             }
 
             return new AnalysisResult(true);
@@ -128,8 +140,8 @@ namespace Handler.FixedDeviceService
         {
             switch (e)
             {
-                case PipelineSnapshotEventArgs:
-                    Trace.TraceInformation($"{this.Name} received notification from {e.SenderPipeline}: {e.Message}");
+                case PipelineSnapshotDoneEventArgs:
+                    Trace.TraceInformation($"{this.Name} received PipelineSnapshotDoneEventArgs notification from {e.SenderPipeline}: {e.Message}");
                     _isTrackingDone= true;
                     //_doneTrackingList.Enqueue(_currentTrackId);
                     _lastDoneTrackingTarget = _currentTrackId;
@@ -138,6 +150,16 @@ namespace Handler.FixedDeviceService
                 default:
                     break;
             }
+        }
+
+        public void SendLockTargetNotification(int trackId)
+        {
+            var e =
+                new PipelineLockTargetEventArgs($"Lock the target: {trackId}", this.Name, _senderPipeline, _targetPipeline);
+            e.TrackId = trackId;
+            Trace.TraceInformation($"{this.Name} send PipelineLockTargetEventArgs notification from {e.SenderPipeline}: {e.Message}");
+
+            EventBus.Instance.PublishNotification(e);
         }
     }
 }
