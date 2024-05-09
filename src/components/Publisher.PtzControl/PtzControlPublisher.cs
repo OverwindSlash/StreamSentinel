@@ -7,10 +7,11 @@ namespace Publisher.PtzControl
 {
     public class PtzControlPublisher : IDomainEventPublisher
     {
-        private readonly CameraManagementService cameraManagementService;
-        private int trackingId = -1;
-        private bool isUnderFixedControl = false;
-        private bool isUnderPtzControl =false;
+        public string Name => nameof(PtzControlPublisher);
+        private CameraManagementService cameraManagementService;
+        private static int trackingId = -1;
+        private static bool isUnderFixedControl = false;
+        private static bool isUnderPtzControl =false;
         public PtzControlPublisher(string configFile)
         {
             cameraManagementService = new CameraManagementService(configFile);

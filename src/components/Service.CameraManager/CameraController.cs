@@ -245,7 +245,7 @@ namespace Service.CameraManager
             }
 
 
-            Console.WriteLine($"To Move relatively: {panInDegree}, {tiltInDegree}, {zoomLevel}");
+            //Console.WriteLine($"To Move relatively: {panInDegree}, {tiltInDegree}, {zoomLevel}");
             var status = cameraApiServices[deviceId].MoveToRelativePositionInDegree(deviceId, panInDegree, tiltInDegree, zoomLevel);
             if (status != null && status.Error == "NO error")
             {
@@ -518,7 +518,7 @@ namespace Service.CameraManager
             // TODO: how to find a proper zoomlevel
             double frac = bBox.Height / cameraInfo.VideoHeight;
             float zoom = 0;
-            if (frac > 0.9)
+            if (frac > 0.8)
             {
                 zoom += -0.5f;
             }

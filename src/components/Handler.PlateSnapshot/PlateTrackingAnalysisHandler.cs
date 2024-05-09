@@ -6,6 +6,7 @@ using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Entities.Events.PtzControl;
 using StreamSentinel.Eventbus;
+using System.Diagnostics;
 
 namespace Handler.PlateTrackingService
 {
@@ -28,6 +29,8 @@ namespace Handler.PlateTrackingService
 
         private int _noDetectionFrameCount = 0;
         private int MaxNoDetectionFrameCount = 48;
+
+        //private bool _isMoving = false;
         public PlateTrackingAnalysisHandler(Dictionary<string, string> preferences)
         {
             _senderPipeline = preferences["SenderPipeline"];
@@ -225,5 +228,22 @@ namespace Handler.PlateTrackingService
 
             EventBus.Instance.PublishNotification(eventArgs);
         }
+
+        //public void HandleNotification(NotificationEventArgs e)
+        //{
+        //    switch (e)
+        //    {
+        //        case PipelineCameraMovingEventArgs  pipelineCameraMovingEventArgs:
+
+        //            //Trace.TraceInformation($"{this.Name} received PipelineCameraMovingEventArgs notification from {e.SenderPipeline}: {e.Message}");
+        //            _isMoving = true;
+        //            break;
+        //        case PipelineCameraStopEventArgs pipelineCameraStopEventArgs:
+        //            _isMoving = false;
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
     }
 }

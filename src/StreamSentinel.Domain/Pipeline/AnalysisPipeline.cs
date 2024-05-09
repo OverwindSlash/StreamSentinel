@@ -193,11 +193,11 @@ namespace StreamSentinel.Pipeline
         private void DebugDisplay(Frame analyzedFrame)
         {
             // Draw specified area for debug
-            DrawRegion(_regionManager.AnalysisDefinition.AnalysisAreas[0], analyzedFrame.Scene, Scalar.Green);
-            DrawRegion(_regionManager.AnalysisDefinition.ExcludedAreas[0], analyzedFrame.Scene, Scalar.Red);
-            DrawRegion(_regionManager.AnalysisDefinition.Lanes[0], analyzedFrame.Scene, Scalar.Yellow);
-            DrawRegion(_regionManager.AnalysisDefinition.Lanes[1], analyzedFrame.Scene, Scalar.Yellow);
-            DrawLine(_regionManager.AnalysisDefinition.CountLines[0].Item1, analyzedFrame.Scene, Scalar.Black);
+            //DrawRegion(_regionManager.AnalysisDefinition.AnalysisAreas[0], analyzedFrame.Scene, Scalar.Green);
+            //DrawRegion(_regionManager.AnalysisDefinition.ExcludedAreas[0], analyzedFrame.Scene, Scalar.Red);
+            //DrawRegion(_regionManager.AnalysisDefinition.Lanes[0], analyzedFrame.Scene, Scalar.Yellow);
+            //DrawRegion(_regionManager.AnalysisDefinition.Lanes[1], analyzedFrame.Scene, Scalar.Yellow);
+            //DrawLine(_regionManager.AnalysisDefinition.CountLines[0].Item1, analyzedFrame.Scene, Scalar.Black);
 
             // Debug Display
             foreach (var detectedObject in analyzedFrame.DetectedObjects)

@@ -36,9 +36,10 @@
       "Parameters": [],
       "Preferences": {
         "SnapshotsDir": "Snapshots",
-        "MaxSnapshots": 10,
-        "MinSnapshotWidth": 100,
-        "MinSnapshotHeight": 20,
+        "MaxSnapshots": 16,
+        "MinSnapshotWidth": 500,
+        "MinSnapshotHeight": 300,
+        "ImageQualityThreshold": 300.0,
         "SenderPipeline": "Pipeline2",
         "TargetPipeline": "Pipeline1",
         "SnapType": "TV"
@@ -54,7 +55,7 @@
         "DetectType1": "Person",
         "DetectType2": "TV",
         "MaxMissedFrame": 24,
-        "MaxNoDetectionFrameCount": 36
+        "MaxNoDetectionFrameCount": 48
       }
     }
   ],

@@ -38,8 +38,8 @@ namespace Service.CameraManager.Service
             {
                 return false;
             }
-            isCameraMoving = true;
             bool result =false;
+            isCameraMoving = true;
             // 依据不同源的命令，进入不同的状态
             switch (target.CommandSource)
             {

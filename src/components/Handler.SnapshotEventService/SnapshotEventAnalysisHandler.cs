@@ -8,6 +8,7 @@ using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Eventbus;
 using StreamSentinel.DataStructures;
 using System.Diagnostics;
+using OcrManager;
 
 namespace Handler.SnapshotEventService
 {
@@ -41,9 +42,14 @@ namespace Handler.SnapshotEventService
 
         private IDomainEventPublisher _domainEventPublisher;
 
-        private const float ImageQualityThreshold = 100.0f;
+        private float ImageQualityThreshold = 100.0f;
+        //private int MinSnapCount = 24;
         private readonly ConcurrentBoundedQueue<int> _doneSnapshotList = new ConcurrentBoundedQueue<int>(10);
         private int _relatedTrackId = -1;
+
+
+        // ocr
+        PaddleOcrManager _ocrManager;
 
         public SnapshotEventAnalysisHandler(Dictionary<string, string> preferences)
         {
@@ -57,6 +63,9 @@ namespace Handler.SnapshotEventService
             _senderPipeline = preferences["SenderPipeline"];
             _targetPipeline = preferences["TargetPipeline"];
             _snapType = preferences["SnapType"];
+
+            float.TryParse(preferences["ImageQualityThreshold"], out ImageQualityThreshold);
+
             var currentDirectory = Directory.GetCurrentDirectory();
             var combine = Path.Combine(currentDirectory, _snapshotsDir);
             var exists = Directory.Exists(combine);
@@ -65,6 +74,8 @@ namespace Handler.SnapshotEventService
             {
                 Directory.CreateDirectory(_snapshotsDir);
             }
+
+            _ocrManager = new PaddleOcrManager();
         }
 
         public void SetDomainEventPublisher(IDomainEventPublisher domainEventPublisher)
@@ -110,7 +121,8 @@ namespace Handler.SnapshotEventService
                 AddSnapshotOfObjectById(obj.Id, f, objSnapshot);
 
                 // send a event of job done
-                if ( f > ImageQualityThreshold && _snapshotsByConfidence[obj.Id].Count > 8)
+                //Trace.TraceInformation($"{obj.Id} : width {f}; count {_snapshotsByConfidence[obj.Id].Count}");
+                if ( f > ImageQualityThreshold && _snapshotsByConfidence[obj.Id].Count >= _maxObjectSnapshots)
                 {
                     SendNotification(obj.Id, obj.TrackId);
                     _doneSnapshotList.Enqueue(obj.TrackId);
@@ -236,13 +248,24 @@ namespace Handler.SnapshotEventService
             var highestConfidence = snapshots.Keys.Max();
             var highestSnapshot = snapshots[highestConfidence];
             SaveBestSnapshot(id, highestSnapshot);
-
+            
             foreach (var snapshot in snapshots.Values)
             {
+                // test: image quality. save all the snap
+                //string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
+                //string filename = id.Replace(':', '_');
+                //snapshot.Mat.SaveImage($"{_snapshotsDir}/all/{timestamp}_{filename}.jpg");
                 snapshot.Mat.Dispose();
             }
 
             _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
+        }
+
+        private string PlateOcr(string id, Snapshot highestSnapshot)
+        {
+            var plate = _ocrManager.Ocr(highestSnapshot.Mat);
+            Trace.TraceInformation($"【Plate: {plate}】");
+            return plate;
         }
 
         private void SaveBestSnapshot(string id, Snapshot highestSnapshot)
@@ -251,7 +274,9 @@ namespace Handler.SnapshotEventService
             string filename = id.Replace(':', '_');
             if (highestSnapshot.Mat.Width > _minSnapshotWidth && highestSnapshot.Mat.Height > _maxSnapshotHeight)
             {
-                highestSnapshot.Mat.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{highestSnapshot.RelativeId}_{timestamp}_{filename}.jpg");
+                // plate recognization
+                var plate =PlateOcr(id, highestSnapshot);
+                highestSnapshot.Mat.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{highestSnapshot.RelativeId}_{plate}_{timestamp}_{filename}.jpg");
             }
         }
         #endregion
