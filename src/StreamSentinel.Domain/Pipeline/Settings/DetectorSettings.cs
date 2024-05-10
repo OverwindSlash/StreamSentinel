@@ -11,5 +11,14 @@ namespace StreamSentinel.Pipeline.Settings
         public bool UseCuda { get; set; }
         public float Thresh { get; set; }
         public List<int> ObjType { get; set; }
+
+        public YoloVersion YoloVersion { get; set; } = YoloVersion.Yolov5;
+
+    }
+
+    public enum YoloVersion : byte
+    {
+        Yolov5 = 0,
+        YoloCustom
     }
 }

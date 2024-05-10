@@ -21,7 +21,8 @@
     "ModelPath": "Models\\yolov5m.onnx",
     "UseCuda": true,
     "Thresh": 0.5,
-    "ObjType": [5]
+    "ObjType": [ 5 ],
+    "YoloVersion": 0
   },
   "Tracker": {
     "AssemblyFile": "Tracker.DeepSortTracker.dll",

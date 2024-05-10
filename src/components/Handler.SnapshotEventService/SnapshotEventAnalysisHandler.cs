@@ -252,9 +252,9 @@ namespace Handler.SnapshotEventService
             foreach (var snapshot in snapshots.Values)
             {
                 // test: image quality. save all the snap
-                //string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
-                //string filename = id.Replace(':', '_');
-                //snapshot.Mat.SaveImage($"{_snapshotsDir}/all/{timestamp}_{filename}.jpg");
+                string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
+                string filename = id.Replace(':', '_');
+                snapshot.Mat.SaveImage($"{_snapshotsDir}/all/{timestamp}_{filename}.jpg");
                 snapshot.Mat.Dispose();
             }
 

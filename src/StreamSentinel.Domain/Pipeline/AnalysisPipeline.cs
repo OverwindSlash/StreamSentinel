@@ -209,10 +209,10 @@ namespace StreamSentinel.Pipeline
                 image.Rectangle(new Point(bbox.X, bbox.Y), new Point(bbox.X + bbox.Width, bbox.Y + bbox.Height), Scalar.Red);
 
                 // Display id.
-                image.PutText(bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
+                image.PutText(bbox.Label +":"+ bbox.TrackingId.ToString(), new Point(bbox.X, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
 
                 // Display lane
-                image.PutText("L:" + detectedObject.LaneIndex.ToString(), new Point(bbox.X + 20, bbox.Y - 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
+                image.PutText("L:" + detectedObject.LaneIndex.ToString()+ ":" + bbox.Confidence, new Point(bbox.X + 20, bbox.Y + 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
             //Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");

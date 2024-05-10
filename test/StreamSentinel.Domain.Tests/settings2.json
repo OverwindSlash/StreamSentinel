@@ -16,10 +16,11 @@
     "AssemblyFile": "Detector.YoloV5Onnx.dll",
     "FullQualifiedClassName": "Detector.YoloV5Onnx.YoloV5OnnxDetector",
     "Parameters": [],
-    "ModelPath": "Models\\yolov5m.onnx",
+    "ModelPath": "Models\\plate.onnx",
     "UseCuda": true,
     "Thresh": 0.5,
-    "ObjType": [ 5,67]
+    "ObjType": [ 5, 6, 7 ],
+    "YoloVersion": 1
   },
   "Tracker": {
     "AssemblyFile": "Tracker.DeepSortTracker.dll",

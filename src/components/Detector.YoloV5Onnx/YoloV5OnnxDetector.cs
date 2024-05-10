@@ -36,7 +36,12 @@ namespace Detector.YoloV5Onnx
                     option = SessionOptions.MakeSessionOptionWithCudaProvider();
                 }
 
-                _predictor = new YoloPredictor<Yolo640v5>(File.ReadAllBytes(config.ModelPath), option);
+                _predictor = config.YoloVersion switch
+                {
+                    YoloVersion.Yolov5 => new YoloPredictor<Yolo640v5>(File.ReadAllBytes(config.ModelPath), option),
+                    YoloVersion.YoloCustom => new YoloPredictor<Yolov5Custom>(File.ReadAllBytes(config.ModelPath), option),
+                };
+                //_predictor = new YoloPredictor<Yolo640v5>(File.ReadAllBytes(config.ModelPath), option);
 
                 foreach (var type in config.ObjType)
                 {
