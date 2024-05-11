@@ -16,11 +16,11 @@
     "AssemblyFile": "Detector.YoloV5Onnx.dll",
     "FullQualifiedClassName": "Detector.YoloV5Onnx.YoloV5OnnxDetector",
     "Parameters": [],
-    "ModelPath": "Models\\plate.onnx",
+    "ModelPath": "Models\\Yolov5m.onnx",
     "UseCuda": true,
     "Thresh": 0.5,
-    "ObjType": [ 5, 6, 7 ],
-    "YoloVersion": 1
+    "ObjType": [ 5, 67 ],
+    "YoloVersion": 0
   },
   "Tracker": {
     "AssemblyFile": "Tracker.DeepSortTracker.dll",
@@ -37,10 +37,10 @@
       "Parameters": [],
       "Preferences": {
         "SnapshotsDir": "Snapshots",
-        "MaxSnapshots": 16,
-        "MinSnapshotWidth": 500,
+        "MaxSnapshots": 8,
+        "MinSnapshotWidth": 200,
         "MinSnapshotHeight": 300,
-        "ImageQualityThreshold": 300.0,
+        "ImageQualityThreshold": 200.0,
         "SenderPipeline": "Pipeline2",
         "TargetPipeline": "Pipeline1",
         "SnapType": "TV"

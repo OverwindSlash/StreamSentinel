@@ -44,11 +44,12 @@ namespace Handler.SnapshotEventService
 
         private float ImageQualityThreshold = 100.0f;
         //private int MinSnapCount = 24;
-        private readonly ConcurrentBoundedQueue<int> _doneSnapshotList = new ConcurrentBoundedQueue<int>(10);
+        private readonly ConcurrentBoundedQueue<int> _doneSnapshotList = new ConcurrentBoundedQueue<int>(8);
         private int _relatedTrackId = -1;
 
 
         // ocr
+        BlurDetector _blurDetector;
         PaddleOcrManager _ocrManager;
 
         public SnapshotEventAnalysisHandler(Dictionary<string, string> preferences)
@@ -75,6 +76,7 @@ namespace Handler.SnapshotEventService
                 Directory.CreateDirectory(_snapshotsDir);
             }
 
+            _blurDetector = new BlurDetector(20);
             _ocrManager = new PaddleOcrManager();
         }
 
@@ -145,6 +147,7 @@ namespace Handler.SnapshotEventService
             }
 
             SortedList<float, Snapshot> snapshotsById = _snapshotsByConfidence[id];
+
             if (!snapshotsById.ContainsKey(confidence))
             {
                 snapshotsById.Add(confidence, new Snapshot(snapshot, _relatedTrackId));
@@ -152,6 +155,8 @@ namespace Handler.SnapshotEventService
             else
             {
                 snapshotsById[confidence] = new Snapshot(snapshot, _relatedTrackId);
+                //Trace.TraceInformation($"===========Insert: {id},{confidence},======={snapshotsById.Count}");
+
             }
 
             if (snapshotsById.Count > _maxObjectSnapshots)
@@ -245,18 +250,34 @@ namespace Handler.SnapshotEventService
 
             SortedList<float, Snapshot> snapshots = _snapshotsByConfidence[id];
 
-            var highestConfidence = snapshots.Keys.Max();
-            var highestSnapshot = snapshots[highestConfidence];
-            SaveBestSnapshot(id, highestSnapshot);
+            //var highestConfidence = snapshots.Keys.Max();
+            //var highestSnapshot = snapshots[highestConfidence];
+            //SaveBestSnapshot(id, highestSnapshot);
             
+            int highestId = 0;
+            double highestScore = 0;
+            for (int i = 0; i < snapshots.Count; i++)
+            {
+                var score = _blurDetector.VarianceOfLaplacian(snapshots.Values[i].Mat);
+                if (score > highestScore)
+                {
+                    highestScore = score;
+                    highestId = i;
+                }
+            }
+            
+            SaveBestSnapshot(id, snapshots.Values[highestId]);
+
             foreach (var snapshot in snapshots.Values)
             {
-                // test: image quality. save all the snap
-                string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
+                //test: image quality. save all the snap
+                string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss.fff");
                 string filename = id.Replace(':', '_');
                 snapshot.Mat.SaveImage($"{_snapshotsDir}/all/{timestamp}_{filename}.jpg");
                 snapshot.Mat.Dispose();
             }
+
+
 
             _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
         }

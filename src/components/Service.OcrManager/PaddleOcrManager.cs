@@ -38,11 +38,13 @@ namespace OcrManager
             {
                 PaddleOcrResult result = ocrInfer?.Run(mat);
                 Trace.TraceInformation("Detected all texts: \n" + result.Text);
+                string plate = string.Empty;
                 foreach (PaddleOcrResultRegion region in result.Regions)
                 {
+                    plate += region.Text;
                     Trace.TraceInformation($"Text: {region.Text}, Score: {region.Score}, RectCenter: {region.Rect.Center}, RectSize:    {region.Rect.Size}, Angle: {region.Rect.Angle}");
                 }
-                return result.Text;
+                return plate;
             }
             catch (Exception ex)
             {
