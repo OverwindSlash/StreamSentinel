@@ -70,7 +70,7 @@ public class VideoLoader : IVideoLoader, IDisposable
         }
     }
 
-    public void Play(int stride = 1, bool debugMode = false, int debugFrameCount = 0)
+    public void PlayAsync(int stride = 1, bool debugMode = false, int debugFrameCount = 0)
     {
         if (!_capture.IsOpened())
         {

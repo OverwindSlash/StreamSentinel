@@ -157,7 +157,7 @@ namespace StreamSentinel.Pipeline
 
             var videoTask = Task.Run(() =>
             {
-                _mediaLoader.Play(_mediaLoaderSettings.VideoStride);
+                _mediaLoader.PlayAsync(_mediaLoaderSettings.VideoStride);
             });
 
             var displayTask = Task.Run(() =>
@@ -215,7 +215,7 @@ namespace StreamSentinel.Pipeline
                 image.PutText("L:" + detectedObject.LaneIndex.ToString()+ ":" + bbox.Confidence, new Point(bbox.X + 20, bbox.Y + 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            //Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
+            Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
 
             Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             Cv2.WaitKey(1);

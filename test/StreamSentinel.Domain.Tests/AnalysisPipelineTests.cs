@@ -27,6 +27,7 @@ namespace StreamSentinel.Domain.Tests
             var pipeline = new AnalysisPipeline(config);
 
             pipeline.Run();
+            Thread.Sleep(1000);
             IConfiguration config2 = new ConfigurationBuilder()
                 .AddJsonFile("settings2.json", true, true)
                 .Build();

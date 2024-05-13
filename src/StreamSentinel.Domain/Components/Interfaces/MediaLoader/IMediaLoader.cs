@@ -13,7 +13,7 @@ public interface IMediaLoader
     public int BufferedFrameCount { get; }
 
     void Open(string uri);
-    void Play(int stride = 1, bool debugMode = false, int debugFrameCount = 0);
+    void PlayAsync(int stride = 1, bool debugMode = false, int debugFrameCount = 0);
     void Stop();
     void Close();
 

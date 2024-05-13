@@ -33,7 +33,7 @@ public class OpenCVVideoLoaderTests
         });
 
         // Provider
-        Task.Run(() => { loader.Play(); });
+        Task.Run(() => { loader.PlayAsync(); });
 
         // Keep thread running until video ends.
         while (loader.BufferedFrameCount != 0 || loader.IsOpened)
@@ -73,7 +73,7 @@ public class OpenCVVideoLoaderTests
         });
 
         // Provider
-        Task.Run(() => { loader.Play(); });
+        Task.Run(() => { loader.PlayAsync(); });
 
         // Keep thread running until video ends.
         while (loader.BufferedFrameCount != 0 || loader.IsOpened)
@@ -107,7 +107,7 @@ public class OpenCVVideoLoaderTests
         using var loader = new VideoLoader("tempId", bufferSize);
         loader.Open(@"Video\video1.avi");
 
-        Task.Run(() => { loader.Play(); });
+        Task.Run(() => { loader.PlayAsync(); });
 
         Task.Run(() =>
         {
@@ -143,7 +143,7 @@ public class OpenCVVideoLoaderTests
         Task.Run(() =>
         {
             int stride = 1;
-            loader.Play(stride, true, bufferSize);
+            loader.PlayAsync(stride, true, bufferSize);
         });
 
         Task.Run(async () =>
@@ -180,7 +180,7 @@ public class OpenCVVideoLoaderTests
         Task.Run(() =>
         {
             int stride = 1;
-            loader.Play(stride, true, bufferSize + 1);
+            loader.PlayAsync(stride, true, bufferSize + 1);
         });
 
         Task.Run(async () =>
@@ -217,7 +217,7 @@ public class OpenCVVideoLoaderTests
         Task.Run(() =>
         {
             int stride = 1;
-            loader.Play(stride, true, bufferSize * 2);
+            loader.PlayAsync(stride, true, bufferSize * 2);
         });
 
         Task.Run(async () =>
@@ -254,7 +254,7 @@ public class OpenCVVideoLoaderTests
         Task.Run(() =>
         {
             int stride = 1;
-            loader.Play(stride, true, bufferSize * 2 + 1);
+            loader.PlayAsync(stride, true, bufferSize * 2 + 1);
         });
 
         Task.Run(async () =>
@@ -289,7 +289,7 @@ public class OpenCVVideoLoaderTests
         loader.Open(@"Video\video1.avi");
 
         int stride = 2;
-        Task.Run(() => { loader.Play(stride, true, bufferSize); });
+        Task.Run(() => { loader.PlayAsync(stride, true, bufferSize); });
 
         Task.Run(async () =>
         {
@@ -322,7 +322,7 @@ public class OpenCVVideoLoaderTests
         using var loader = new VideoLoader("tempId", bufferSize);
         loader.Open(@"Video\video1.avi");
 
-        loader.Play(1, true, bufferSize);
+        loader.PlayAsync(1, true, bufferSize);
 
         var frameCount = loader.BufferedFrameCount;
 
@@ -367,7 +367,7 @@ public class OpenCVVideoLoaderTests
         //loader.Open(@"rtsp://admin:CS%40202304@192.168.1.151:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1");
         loader.Open(@"rtsp://stream.strba.sk:1935/strba/VYHLAD_JAZERO.stream");
 
-        loader.Play(1, true, bufferSize);
+        loader.PlayAsync(1, true, bufferSize);
 
         var bufferedFrameCount = loader.BufferedFrameCount;
 

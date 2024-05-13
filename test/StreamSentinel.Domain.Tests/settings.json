@@ -6,8 +6,8 @@
     "Name": "Pipeline1"
   },
   "MediaLoader": {
-    "AssemblyFile": "MediaLoader.OpenCV.dll",
-    "FullQualifiedClassName": "MediaLoader.OpenCV.VideoLoader",
+    "AssemblyFile": "MediaLoader.Vlc.dll",
+    "FullQualifiedClassName": "MediaLoader.Vlc.VlcVideoLoader",
     "Parameters": [
       "tempId",
       100
