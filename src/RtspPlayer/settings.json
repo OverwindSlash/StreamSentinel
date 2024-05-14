@@ -1,0 +1,73 @@
+{
+  "Pipeline": {
+    "Uri": "rtsp://192.168.1.40/Cam-778813-MediaProfile00000",
+    //"Uri": "rtsp://192.168.1.40/phone.sdp",
+    //"Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1",
+    "Name": "Pipeline1"
+  },
+  "MediaLoader": {
+    "AssemblyFile": "MediaLoader.Rtsp.dll",
+    "FullQualifiedClassName": "MediaLoader.Rtsp.RtspVideoLoader",
+    "Parameters": [
+      "tempId",
+      100
+    ],
+    "VideoStride": 2
+  },
+  "Detector": {
+    "AssemblyFile": "Detector.YoloV5Onnx.dll",
+    "FullQualifiedClassName": "Detector.YoloV5Onnx.YoloV5OnnxDetector",
+    "Parameters": [],
+    "ModelPath": "Models\\yolov5m.onnx",
+    "UseCuda": true,
+    "Thresh": 0.5,
+    "ObjType": [ 5 ],
+    "YoloVersion": 0
+  },
+  "Tracker": {
+    "AssemblyFile": "Tracker.DeepSortTracker.dll",
+    "FullQualifiedClassName": "Tracker.DeepSortTracker.DeepSortTracker",
+    "Parameters": [
+      0.1,
+      75
+    ]
+  },
+  "AnalysisHandlers": [
+    {
+      "AssemblyFile": "Snapshot.InMemory.dll",
+      "FullQualifiedClassName": "Snapshot.InMemory.InMemorySnapshotService",
+      "Parameters": [],
+      "Preferences": {
+        "SnapshotsDir": "Snapshots",
+        "MaxSnapshots": 10,
+        "MinSnapshotWidth": 500,
+        "MinSnapshotHeight": 500,
+        "SenderPipeline": "Pipeline1"
+      }
+    },
+    {
+      "AssemblyFile": "Handler.FixedDeviceService.dll",
+      "FullQualifiedClassName": "Handler.FixedDeviceService.FixedDeviceAnalysisHandler",
+      "Parameters": [],
+      "Preferences": {
+        "Class": "Person",
+        "MaxMissedCount": 48,
+        "MaxTrackingFrameCount": 512,
+        "SenderPipeline": "Pipeline1",
+        "TargetPipeline": "Pipeline2"
+      }
+    }
+  ],
+  "RegionManager": {
+    "AssemblyFile": "RegionManager.DefinitionBased.dll",
+    "FullQualifiedClassName": "RegionManager.DefinitionBased.DefinitionBasedRegionManager",
+    "Parameters": [
+      "changhudaqiao.json"
+    ]
+  },
+  "Publisher": {
+    "AssemblyFile": "Publisher.PtzControl.dll",
+    "FullQualifiedClassName": "Publisher.PtzControl.PtzControlPublisher",
+    "Parameters": ["config.json"]
+  }
+}

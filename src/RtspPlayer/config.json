@@ -1,0 +1,11 @@
+{
+  "PtzUri": "https://192.168.1.40:44311/api/services/app/",
+  "PtzDeviceId": "Cam-3345a6",
+  "FixedDeviceId": "Cam-778813",
+  "RelativePosition": {
+    "X": 0.52,
+    "Y": -0.90,
+    "Z": -0.5
+  },
+  "FakeDistance": -6.0
+}

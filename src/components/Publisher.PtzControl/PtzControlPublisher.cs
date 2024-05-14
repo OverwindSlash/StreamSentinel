@@ -2,6 +2,7 @@
 using StreamSentinel.Components.Interfaces.EventPublisher;
 using StreamSentinel.Entities.Events.Domain;
 using StreamSentinel.Entities.Events.PtzControl;
+using System.Diagnostics;
 
 namespace Publisher.PtzControl
 {
@@ -34,6 +35,7 @@ namespace Publisher.PtzControl
                         while (isUnderPtzControl)
                         {
                             Task.Delay(100);
+                            //Trace.TraceInformation($"++++++++++++++++++++++++++++++++++++++++++++++++++ delay");
                             continue;
                         }
                         isUnderFixedControl = true;

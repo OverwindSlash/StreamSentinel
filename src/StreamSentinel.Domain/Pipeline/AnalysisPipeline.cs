@@ -19,6 +19,7 @@ using Abp.Configuration;
 
 namespace StreamSentinel.Pipeline
 {
+    public delegate void FrameReceivedEventHandler(Mat frame, string pipelineName);
     public class AnalysisPipeline
     {
         private const int DefaultFrameLifeTime = 125;
@@ -44,7 +45,7 @@ namespace StreamSentinel.Pipeline
         private IDomainEventPublisher _domainEventPublisher;
         private List<IAnalysisHandler> _analysisHandlers;
         
-
+        public event FrameReceivedEventHandler FrameReceived;
         public AnalysisPipeline(IConfiguration config)
         {
             _pipeLineSettings = config.GetSection("Pipeline").Get<PipelineSettings>();
@@ -146,9 +147,11 @@ namespace StreamSentinel.Pipeline
                 while (_mediaLoader.BufferedFrameCount != 0 || _mediaLoader.IsOpened)
                 {
                     var frame = _mediaLoader.RetrieveFrame();
-                    if (frame == null) { continue; }
+                    if (frame == null) {
+                        continue; 
+                    }
                     frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
-                    _regionManager.CalcRegionProperties(frame.DetectedObjects);
+                    //_regionManager.CalcRegionProperties(frame.DetectedObjects);
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
                     var analyzedFrame = Analyze(frame);
                     PushAanlysisResults(analyzedFrame);
@@ -157,7 +160,7 @@ namespace StreamSentinel.Pipeline
 
             var videoTask = Task.Run(() =>
             {
-                _mediaLoader.PlayAsync(_mediaLoaderSettings.VideoStride);
+                _mediaLoader.Play(_mediaLoaderSettings.VideoStride);
             });
 
             var displayTask = Task.Run(() =>
@@ -176,7 +179,7 @@ namespace StreamSentinel.Pipeline
             foreach (IAnalysisHandler handler in _analysisHandlers)
             {
                 var analysisResult = handler.Analyze(frame);
-
+                //Trace.TraceInformation($"{_pipeLineSettings.Name}:{handler.Name}");
                 // TODO with result.
             }
 
@@ -215,10 +218,12 @@ namespace StreamSentinel.Pipeline
                 image.PutText("L:" + detectedObject.LaneIndex.ToString()+ ":" + bbox.Confidence, new Point(bbox.X + 20, bbox.Y + 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            Trace.WriteLine($"{_mediaLoader.BufferedFrameCount}");
+            Trace.WriteLine($"{_pipeLineSettings.Name}:{_mediaLoader.BufferedFrameCount}");
 
-            Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
+            //Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
+            FrameReceived?.Invoke(analyzedFrame.Scene, _pipeLineSettings.Name);
             Cv2.WaitKey(1);
+
         }
 
         private static void DrawRegion(NormalizedPolygon region, Mat frame, Scalar color)

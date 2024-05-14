@@ -1,0 +1,75 @@
+{
+  "Pipeline": {
+    "Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1",
+    "Name": "Pipeline2"
+  },
+  "MediaLoader": {
+    "AssemblyFile": "MediaLoader.Rtsp.dll",
+    "FullQualifiedClassName": "MediaLoader.Rtsp.RtspVideoLoader",
+    "Parameters": [
+      "tempId",
+      100
+    ],
+    "VideoStride": 2
+  },
+  "Detector": {
+    "AssemblyFile": "Detector.YoloV5Onnx.dll",
+    "FullQualifiedClassName": "Detector.YoloV5Onnx.YoloV5OnnxDetector",
+    "Parameters": [],
+    "ModelPath": "Models\\Yolov5m.onnx",
+    "UseCuda": true,
+    "Thresh": 0.5,
+    "ObjType": [ 5, 67 ],
+    "YoloVersion": 0
+  },
+  "Tracker": {
+    "AssemblyFile": "Tracker.DeepSortTracker.dll",
+    "FullQualifiedClassName": "Tracker.DeepSortTracker.DeepSortTracker",
+    "Parameters": [
+      0.1,
+      75
+    ]
+  },
+  "AnalysisHandlers": [
+    {
+      "AssemblyFile": "Handler.SnapshotEventService.dll",
+      "FullQualifiedClassName": "Handler.SnapshotEventService.SnapshotEventAnalysisHandler",
+      "Parameters": [],
+      "Preferences": {
+        "SnapshotsDir": "Snapshots",
+        "MaxSnapshots": 8,
+        "MinSnapshotWidth": 200,
+        "MinSnapshotHeight": 300,
+        "ImageQualityThreshold": 200.0,
+        "SenderPipeline": "Pipeline2",
+        "TargetPipeline": "Pipeline1",
+        "SnapType": "TV"
+      }
+    },
+    {
+      "AssemblyFile": "Handler.PlateTrackingService.dll",
+      "FullQualifiedClassName": "Handler.PlateTrackingService.PlateTrackingAnalysisHandler",
+      "Parameters": [],
+      "Preferences": {
+        "SenderPipeline": "Pipeline2",
+        "TargetPipeline": "Pipeline1",
+        "DetectType1": "Person",
+        "DetectType2": "TV",
+        "MaxMissedFrame": 24,
+        "MaxNoDetectionFrameCount": 48
+      }
+    }
+  ],
+  "RegionManager": {
+    "AssemblyFile": "RegionManager.DefinitionBased.dll",
+    "FullQualifiedClassName": "RegionManager.DefinitionBased.DefinitionBasedRegionManager",
+    "Parameters": [
+      "changhudaqiao.json"
+    ]
+  },
+  "Publisher": {
+    "AssemblyFile": "Publisher.PtzControl.dll",
+    "FullQualifiedClassName": "Publisher.PtzControl.PtzControlPublisher",
+    "Parameters": [ "config.json" ]
+  }
+}

@@ -284,7 +284,7 @@ namespace Handler.SnapshotEventService
 
         private string PlateOcr(string id, Snapshot highestSnapshot)
         {
-            var plate = _ocrManager.Ocr(highestSnapshot.Mat);
+            var plate = _ocrManager.Ocr(highestSnapshot.Mat.Clone());
             Trace.TraceInformation($"【Plate: {plate}】");
             return plate;
         }

@@ -43,6 +43,8 @@ namespace MediaLoader.Vlc
         private readonly IConcurrentBoundedQueue<Frame> _frameBuffer;
         private VideoSpecs _videoSpecs;
         private bool _isOpen = false;
+
+        private int _skipFrame = 8;
         public VlcVideoLoader(string deivceId, int bufferSize): this(deivceId, bufferSize,1920, 1080)
         {
             
@@ -135,8 +137,9 @@ namespace MediaLoader.Vlc
             _isOpen = true;
         }
 
-        public void PlayAsync(int stride = 1, bool debugMode = false, int debugFrameCount = 0)
+        public void Play(int stride = 1, bool debugMode = false, int debugFrameCount = 0)
         {
+            _skipFrame = stride;
             mediaPlayer.Play();
             //while (!mediaPlayer.IsPlaying)
             //{
@@ -144,7 +147,7 @@ namespace MediaLoader.Vlc
             //    continue;
             //}
             isRunning = true;
-            ProcessAsync().ConfigureAwait(false);
+            Process();
         }
 
         public Frame RetrieveFrame()
@@ -161,11 +164,11 @@ namespace MediaLoader.Vlc
         {
             isRunning = false;
         }
-        private async Task ProcessAsync()
+        private void Process()
         {
             var frameNumber = 0;
-            await Task.Factory.StartNew(async () =>
-            {
+            //await Task.Factory.StartNew(async () =>
+            //{
                 while (isRunning)
                 {
                     if (!mediaPlayer.IsPlaying)
@@ -173,7 +176,8 @@ namespace MediaLoader.Vlc
                         mediaPlayer.Stop();
                         var res = mediaPlayer.Play();
                         Trace.TraceInformation($"Connecting...");
-                        await Task.Delay(TimeSpan.FromSeconds(3));
+                        //Task.Delay(TimeSpan.FromSeconds(3));
+                        Thread.Sleep(1000);
                     }
                     if (FilesToProcess.TryDequeue(out var file))
                     {
@@ -195,6 +199,7 @@ namespace MediaLoader.Vlc
                             var mat = bitmap.ToMat();
                             var frame = new Frame(_deviceId, frameNumber, 0, mat);
                             _frameBuffer.Enqueue(frame);
+                            //Trace.TraceInformation($"=============================vlc queue: {_frameBuffer.Count}");
 
                         }
                         file.accessor.Dispose();
@@ -208,7 +213,9 @@ namespace MediaLoader.Vlc
                         //Trace.TraceWarning($"FrameFailedCounter: {FrameFailedCounter}");
                     }
                 }
-            });
+            //});
+
+                Close();
         }
         private IntPtr Lock(IntPtr opaque, IntPtr planes)
         {
@@ -220,19 +227,19 @@ namespace MediaLoader.Vlc
 
         private void Display(IntPtr opaque, IntPtr picture)
         {
-            //if (FrameCounter % 1 == 0)
-            //{
-            FilesToProcess.Enqueue((CurrentMappedFile, CurrentMappedViewAccessor));
-            CurrentMappedFile = null;
-            CurrentMappedViewAccessor = null;
-            //}
-            //else
-            //{
-            //    CurrentMappedViewAccessor.Dispose();
-            //    CurrentMappedFile.Dispose();
-            //    CurrentMappedFile = null;
-            //    CurrentMappedViewAccessor = null;
-            //}
+            if (FrameCounter % _skipFrame == 0)
+            {
+                FilesToProcess.Enqueue((CurrentMappedFile, CurrentMappedViewAccessor));
+                CurrentMappedFile = null;
+                CurrentMappedViewAccessor = null;
+            }
+            else
+            {
+                CurrentMappedViewAccessor.Dispose();
+                CurrentMappedFile.Dispose();
+                CurrentMappedFile = null;
+                CurrentMappedViewAccessor = null;
+            }
             FrameCounter++;
         }
     }
