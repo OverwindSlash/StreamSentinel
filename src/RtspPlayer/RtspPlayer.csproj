@@ -25,7 +25,6 @@
     <ProjectReference Include="..\components\Handler.SnapshotEventService\Handler.SnapshotEventService.csproj" />
     <ProjectReference Include="..\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
     <ProjectReference Include="..\components\MediaLoader.Rtsp\MediaLoader.Rtsp.csproj" />
-    <ProjectReference Include="..\components\MediaLoader.Vlc\MediaLoader.Vlc.csproj" />
     <ProjectReference Include="..\components\Publisher.PtzControl\Publisher.PtzControl.csproj" />
     <ProjectReference Include="..\components\RegionChecker.DefinitionBased\RegionManager.DefinitionBased.csproj" />
     <ProjectReference Include="..\components\Service.CameraManager\Service.CameraManager.csproj" />
