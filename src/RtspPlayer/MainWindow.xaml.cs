@@ -51,9 +51,8 @@ namespace RtspPlayer
             var pipeline2 = new AnalysisPipeline(config2);
             pipeline2.FrameReceived += FrameReceivedEvent2;
 
-
             pipeline.Run();
-            Thread.Sleep(1000);
+            Thread.Sleep(5000);
 
             pipeline2.Run();
         }

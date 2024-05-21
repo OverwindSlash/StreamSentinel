@@ -1,11 +1,12 @@
 {
   "Pipeline": {
-    "Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1",
+    "Uri": "rtsp://localhost/mystream",
+    //"Uri": "rtsp://192.168.1.40/Cam-3345a6-Profile_1",
     "Name": "Pipeline2"
   },
   "MediaLoader": {
-    "AssemblyFile": "MediaLoader.Rtsp.dll",
-    "FullQualifiedClassName": "MediaLoader.Rtsp.RtspVideoLoader",
+    "AssemblyFile": "MediaLoader.OpenCV.dll",
+    "FullQualifiedClassName": "MediaLoader.OpenCV.VideoLoader",
     "Parameters": [
       "tempId",
       100
@@ -16,11 +17,11 @@
     "AssemblyFile": "Detector.YoloV5Onnx.dll",
     "FullQualifiedClassName": "Detector.YoloV5Onnx.YoloV5OnnxDetector",
     "Parameters": [],
-    "ModelPath": "Models\\Yolov5m.onnx",
+    "ModelPath": "Models\\plate.onnx",
     "UseCuda": true,
     "Thresh": 0.5,
-    "ObjType": [ 5, 67 ],
-    "YoloVersion": 0
+    "ObjType": [ 5, 6, 7 ],
+    "YoloVersion": 1
   },
   "Tracker": {
     "AssemblyFile": "Tracker.DeepSortTracker.dll",
@@ -37,13 +38,13 @@
       "Parameters": [],
       "Preferences": {
         "SnapshotsDir": "Snapshots",
-        "MaxSnapshots": 8,
-        "MinSnapshotWidth": 200,
-        "MinSnapshotHeight": 300,
+        "MaxSnapshots": 10,
+        "MinSnapshotWidth": 100,
+        "MinSnapshotHeight": 30,
         "ImageQualityThreshold": 200.0,
         "SenderPipeline": "Pipeline2",
         "TargetPipeline": "Pipeline1",
-        "SnapType": "TV"
+        "SnapType": "Car"
       }
     },
     {
@@ -53,8 +54,8 @@
       "Preferences": {
         "SenderPipeline": "Pipeline2",
         "TargetPipeline": "Pipeline1",
-        "DetectType1": "Person",
-        "DetectType2": "TV",
+        "DetectType1": "Bicycle",
+        "DetectType2": "Car",
         "MaxMissedFrame": 24,
         "MaxNoDetectionFrameCount": 48
       }

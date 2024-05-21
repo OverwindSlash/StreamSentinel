@@ -34,7 +34,7 @@ namespace Handler.SnapshotEventService
         private string _snapshotsDir = "Snapshots";
         private int _maxObjectSnapshots = 10;
         private int _minSnapshotWidth = 40;
-        private int _maxSnapshotHeight = 40;
+        private int _minSnapshotHeight = 40;
         private string _senderPipeline;
         private string _targetPipeline;
         private string _snapType;
@@ -60,7 +60,7 @@ namespace Handler.SnapshotEventService
             _snapshotsDir = preferences["SnapshotsDir"];
             _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
             _minSnapshotWidth = int.Parse(preferences["MinSnapshotWidth"]);
-            _maxSnapshotHeight = int.Parse(preferences["MinSnapshotHeight"]);
+            _minSnapshotHeight = int.Parse(preferences["MinSnapshotHeight"]);
             _senderPipeline = preferences["SenderPipeline"];
             _targetPipeline = preferences["TargetPipeline"];
             _snapType = preferences["SnapType"];
@@ -118,6 +118,16 @@ namespace Handler.SnapshotEventService
                 {
                     continue;
                 }
+                if (obj.Y < 0.2 * frame.Scene.Height || obj.Y > 0.8 * frame.Scene.Height)
+                {
+                    continue;
+                }
+
+                if (frame.Scene.Width < _minSnapshotWidth || frame.Scene.Height < _minSnapshotHeight)
+                {
+                    continue;
+                }
+
                 Mat objSnapshot = frame.Scene.SubMat(new Rect(obj.X, obj.Y, obj.Width, obj.Height)).Clone();
                 var f = CalculateFactor(obj);
                 AddSnapshotOfObjectById(obj.Id, f, objSnapshot);
@@ -258,7 +268,8 @@ namespace Handler.SnapshotEventService
             double highestScore = 0;
             for (int i = 0; i < snapshots.Count; i++)
             {
-                var score = _blurDetector.VarianceOfLaplacian(snapshots.Values[i].Mat);
+                var snapshot = snapshots.Values[i];
+                var score = _blurDetector.VarianceOfLaplacian(snapshot.Mat);
                 if (score > highestScore)
                 {
                     highestScore = score;
@@ -293,11 +304,18 @@ namespace Handler.SnapshotEventService
         {
             string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
             string filename = id.Replace(':', '_');
-            if (highestSnapshot.Mat.Width > _minSnapshotWidth && highestSnapshot.Mat.Height > _maxSnapshotHeight)
+            if (highestSnapshot.Mat.Width > _minSnapshotWidth && highestSnapshot.Mat.Height > _minSnapshotHeight)
             {
                 // plate recognization
                 var plate =PlateOcr(id, highestSnapshot);
-                highestSnapshot.Mat.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{highestSnapshot.RelativeId}_{plate}_{timestamp}_{filename}.jpg");
+                try
+                {
+                    highestSnapshot.Mat.SaveImage($"{_snapshotsDir}/{_senderPipeline}_{highestSnapshot.RelativeId}_{plate}_{timestamp}_{filename}.jpg");
+                }
+                catch (Exception)
+                {
+                    Trace.TraceError($"Save Image Error! Name: {plate}");
+                }
             }
         }
         #endregion

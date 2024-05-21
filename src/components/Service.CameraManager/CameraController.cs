@@ -181,6 +181,10 @@ namespace Service.CameraManager
                 return false;
             }
 
+            if (!cameraApiServices.ContainsKey(deviceId))
+            {
+                return false;
+            }
             var status = cameraApiServices[deviceId].GetCurrentStatus(deviceId);
 
             if (status != null && status.Error == "NO error")
