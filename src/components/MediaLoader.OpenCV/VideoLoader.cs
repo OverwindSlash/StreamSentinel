@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using OpenCvSharp;
 using StreamSentinel.Components.Interfaces.MediaLoader;
 using StreamSentinel.DataStructures;
@@ -14,7 +16,8 @@ public class VideoLoader : IVideoLoader, IDisposable
     private readonly IConcurrentBoundedQueue<Frame> _frameBuffer;
     private bool _isInPlaying;
     private long _index;
-
+    private string _uri;
+    private int reconnectAfterFrames = 10;
     public VideoLoader()
     : this("tempId", 100)
     { }
@@ -40,6 +43,7 @@ public class VideoLoader : IVideoLoader, IDisposable
 
     public void Open(string uri)
     {
+        _uri = uri;
         Close();
 
         _capture = new VideoCapture(uri, VideoCaptureAPIs.FFMPEG);
@@ -78,7 +82,7 @@ public class VideoLoader : IVideoLoader, IDisposable
         }
 
         _isInPlaying = true;
-
+        var failedFrame = 0;
         var startTimestamp = DateTime.Now;
 
         while (_isInPlaying)
@@ -99,7 +103,16 @@ public class VideoLoader : IVideoLoader, IDisposable
             var image = new Mat();
             if (!_capture.Retrieve(image))
             {
-                break;
+                failedFrame++;
+                if (failedFrame >reconnectAfterFrames)
+                {
+                    // reconnect
+                    Trace.TraceError($"Reconnect...");
+                    Thread.Sleep(5000);
+                    Close();
+                    _capture.Open(_uri);
+                }
+                continue;
             }
 
             if (image.Width == 0 || image.Height == 0)

@@ -218,7 +218,7 @@ namespace StreamSentinel.Pipeline
                 image.PutText("L:" + detectedObject.LaneIndex.ToString()+ ":" + bbox.Confidence, new Point(bbox.X + 20, bbox.Y + 20), HersheyFonts.HersheyPlain, 1.0, Scalar.Red);
             }
 
-            Trace.WriteLine($"{_pipeLineSettings.Name}:{_mediaLoader.BufferedFrameCount}");
+            //Trace.WriteLine($"{_pipeLineSettings.Name}:{_mediaLoader.BufferedFrameCount}");
 
             //Cv2.ImShow(_pipeLineSettings.Uri, analyzedFrame.Scene.Resize(new Size(1920, 1080)));
             FrameReceived?.Invoke(analyzedFrame.Scene, _pipeLineSettings.Name);

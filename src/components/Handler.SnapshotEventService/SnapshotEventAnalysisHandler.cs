@@ -33,6 +33,7 @@ namespace Handler.SnapshotEventService
 
         private string _snapshotsDir = "Snapshots";
         private int _maxObjectSnapshots = 10;
+        private int _minObjectSnapshots = 8;
         private int _minSnapshotWidth = 40;
         private int _minSnapshotHeight = 40;
         private string _senderPipeline;
@@ -59,6 +60,8 @@ namespace Handler.SnapshotEventService
 
             _snapshotsDir = preferences["SnapshotsDir"];
             _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
+            _minObjectSnapshots = int.Parse(preferences["MinSnapshots"]);
+
             _minSnapshotWidth = int.Parse(preferences["MinSnapshotWidth"]);
             _minSnapshotHeight = int.Parse(preferences["MinSnapshotHeight"]);
             _senderPipeline = preferences["SenderPipeline"];
@@ -134,7 +137,7 @@ namespace Handler.SnapshotEventService
 
                 // send a event of job done
                 //Trace.TraceInformation($"{obj.Id} : width {f}; count {_snapshotsByConfidence[obj.Id].Count}");
-                if ( f > ImageQualityThreshold && _snapshotsByConfidence[obj.Id].Count >= _maxObjectSnapshots)
+                if ( f > ImageQualityThreshold && _snapshotsByConfidence[obj.Id].Count >= _minObjectSnapshots)
                 {
                     SendNotification(obj.Id, obj.TrackId);
                     _doneSnapshotList.Enqueue(obj.TrackId);

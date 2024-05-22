@@ -38,7 +38,8 @@
       "Parameters": [],
       "Preferences": {
         "SnapshotsDir": "Snapshots",
-        "MaxSnapshots": 10,
+        "MaxSnapshots": 16,
+        "MinSnapshots": 8,
         "MinSnapshotWidth": 100,
         "MinSnapshotHeight": 30,
         "ImageQualityThreshold": 200.0,
