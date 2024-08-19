@@ -1,0 +1,28 @@
+{
+    "Name": "default",
+    "IsObjectAnalyzableRetain": false,
+    "IsDoubleLineCounting": false,
+    "AnalysisAreas": [
+        {
+            "Name": "analysis region",
+            "Points": [
+                {
+                    "NormalizedX": 0,
+                    "NormalizedY": 0
+                },
+                {
+                    "NormalizedX": 0,
+                    "NormalizedY": 1
+                },
+                {
+                    "NormalizedX": 1,
+                    "NormalizedY": 1
+                },
+                {
+                    "NormalizedX": 1,
+                    "NormalizedY": 0
+                }
+            ]
+        }
+    ]    
+}

@@ -18,6 +18,7 @@ namespace Detector.YoloV5Onnx
         {
             _yoloModel = Activator.CreateInstance<TYoloModel>();
             _inferenceSession = new InferenceSession(model, sessionOptions ?? new SessionOptions());
+            var inferenceSessionModelMetadata = _inferenceSession.ModelMetadata;
         }
 
         public IReadOnlyList<YoloPrediction> Predict(Bitmap image, float targetConfidence, params DetectionObjectType[] targetDetectionTypes)

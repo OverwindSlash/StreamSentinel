@@ -5,7 +5,7 @@
         public int Width { get; } = 640;
         public int Height { get; } = 640;
         public int Depth { get; } = 3;
-        public int Dimensions { get; } = 85;
+        public int Dimensions { get; } = 7;
         public int[] Strides { get; } = new int[] { 8, 16, 32 };
 
         public int[][][] Anchors { get; } = new int[][][]
@@ -21,7 +21,7 @@
         public float Overlap { get; } = 0.45f;
         public int Channels { get; } = 3;
         public int BatchSize { get; } = 1;
-        public string[] Outputs { get; } = new[] { "output" };
+        public string[] Outputs { get; } = new[] { "output0" };
         public string Input { get; } = "images";
     }
 }
