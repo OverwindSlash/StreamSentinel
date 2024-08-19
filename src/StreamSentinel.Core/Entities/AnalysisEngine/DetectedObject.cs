@@ -42,6 +42,10 @@ public class DetectedObject : IDisposable, IPrediction
     [JsonIgnore]
     public int Height => Bbox.Height;
     [JsonIgnore]
+    public int Right => X + Width;
+    [JsonIgnore]
+    public int Bottom => Y + Height;
+    [JsonIgnore]
     public int CenterX => Bbox.CenterX;
     [JsonIgnore]
     public int CenterY => Bbox.CenterY;
@@ -73,6 +77,32 @@ public class DetectedObject : IDisposable, IPrediction
         {
             Bbox.TrackingId = (uint)value;
         }
+    }
+
+    public bool CloseTo(DetectedObject other, double threshold = 0.2)
+    {
+        // Calculate the closest X coordinate
+        int closestX = Math.Max(this.X, Math.Min(other.X, this.Right));
+
+        // Calculate the closest Y coordinate
+        int closestY = Math.Max(this.Y, Math.Min(other.Y, this.Bottom));
+
+        // Calculate the closest point on box2 to box1
+        int closestX2 = Math.Max(other.X, Math.Min(this.X, other.Right));
+        int closestY2 = Math.Max(other.Y, Math.Min(this.Y, other.Bottom));
+
+        // Calculate the distance between the closest points
+        float distance = CalculateDistance(closestX, closestY, closestX2, closestY2);
+
+        // Return whether the distance is less than the threshold
+        return (distance < threshold * this.X) || (distance < threshold * this.Y);
+    }
+
+    private static float CalculateDistance(int x1, int y1, int x2, int y2)
+    {
+        int dx = x1 - x2;
+        int dy = y1 - y2;
+        return (float)Math.Sqrt(dx * dx + dy * dy);
     }
 
     public void Dispose()
