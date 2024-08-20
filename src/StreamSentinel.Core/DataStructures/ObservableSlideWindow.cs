@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace StreamSentinel.DataStructures
 {
-    public class ObservableSlideWindow : IObservable<ObjectExpiredEvent>, IObservable<FrameExpiredEvent>
+    public class ObservableSlideWindow : IObservable<ObjectExpiredEvent>, IObservable<FrameExpiredEvent>, IDisposable
     {
         private readonly ConcurrentBoundedQueue<Frame> _frames;
 
@@ -215,6 +215,19 @@ namespace StreamSentinel.DataStructures
             if (_objectsUnderTracking.ContainsKey(objectId))
             {
                 _objectsUnderTracking.TryRemove(objectId, out var value);
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var frame in _frames)
+            {
+                foreach (var detectedObject in frame.DetectedObjects)
+                {
+                    NotifyObservers(new ObjectExpiredEvent(detectedObject));
+                }
+
+                NotifyObservers(new FrameExpiredEvent(frame));
             }
         }
     }

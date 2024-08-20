@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace StreamSentinel.Pipeline
 {
-    public class AnalysisPipeline
+    public class AnalysisPipeline : IDisposable
     {
         private const int DefaultFrameLifeTime = 125;
 
@@ -31,7 +31,6 @@ namespace StreamSentinel.Pipeline
         private readonly SnapshotSettings _snapshotSettings;
         private readonly PublisherSettings _publisherSettings;
         private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
-        
 
         private readonly ObservableSlideWindow _slideWindow;
         private readonly VideoFrameBuffer _analyzedFrameBuffer;
@@ -43,7 +42,7 @@ namespace StreamSentinel.Pipeline
         private ISnapshot _snapshot;
         private IDomainEventPublisher _domainEventPublisher;
         private List<IAnalysisHandler> _analysisHandlers;
-        
+
 
         public AnalysisPipeline(IConfiguration config)
         {
@@ -82,23 +81,18 @@ namespace StreamSentinel.Pipeline
             _snapshotSettings = config.GetSection("Snapshot").Get<SnapshotSettings>();
             var snapshot = CreateInstance<ISnapshot>(
                 _snapshotSettings.AssemblyFile, _snapshotSettings.FullQualifiedClassName, new object?[] { _snapshotSettings.Preferences });
+            _services.AddTransient<ISnapshot>(sp => snapshot);
 
             _publisherSettings = config.GetSection("Publisher").Get<PublisherSettings>();
             var publisher = CreateInstance<IDomainEventPublisher>(
                 _publisherSettings.AssemblyFile, _publisherSettings.FullQualifiedClassName);
             _services.AddTransient<IDomainEventPublisher>(sp => publisher);
 
-            _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)snapshot);
-            _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)snapshot);
-            _services.AddTransient<ISnapshot>(sp => snapshot);
-
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
             foreach (var setting in _analysisHandlerSettings)
             {
                 var handler = CreateInstance<IAnalysisHandler>(setting.AssemblyFile, setting.FullQualifiedClassName,
                     new object?[] { setting.Preferences });
-                _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)handler);
-                _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)handler);
                 _services.AddTransient<IAnalysisHandler>(sp => handler);
             }
 
@@ -140,10 +134,14 @@ namespace StreamSentinel.Pipeline
             _objectTracker = _provider.GetService<IObjectTracker>();
 
             _snapshot = _provider.GetService<ISnapshot>();
+            _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)_snapshot);
+            _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)_snapshot);
 
             _domainEventPublisher = _provider.GetService<IDomainEventPublisher>();
 
             _analysisHandlers = _provider.GetServices<IAnalysisHandler>().ToList();
+            _analysisHandlers.ForEach(handler => { _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)handler); });
+            _analysisHandlers.ForEach(handler => { _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)handler); });
             _analysisHandlers.ForEach(handler => { handler.SetSnapshot(_snapshot); });
             _analysisHandlers.ForEach(handler => { handler.SetDomainEventPublisher(_domainEventPublisher); });
 
@@ -174,7 +172,7 @@ namespace StreamSentinel.Pipeline
                 }
             });
 
-            Task.WaitAll(analysisTask, videoTask);
+            Task.WaitAll(analysisTask, videoTask, displayTask);
         }
 
         private Frame Analyze(Frame frame)
@@ -246,6 +244,12 @@ namespace StreamSentinel.Pipeline
             Point stop = new Point(line.Stop.OriginalX, line.Stop.OriginalY);
 
             frame.Line(start, stop, color);
+        }
+
+        public void Dispose()
+        {
+            _slideWindow.Dispose();
+            _provider.Dispose();
         }
     }
 }

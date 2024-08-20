@@ -122,7 +122,7 @@ namespace Detector.YoloV5Onnx
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

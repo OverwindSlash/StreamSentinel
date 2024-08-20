@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace Snapshot.InMemory
 {
-    public class InMemorySnapshot : ISnapshot, IObserver<ObjectExpiredEvent>, IObserver<FrameExpiredEvent>, IDisposable
+    public class InMemorySnapshot : ISnapshot, IObserver<ObjectExpiredEvent>, IObserver<FrameExpiredEvent>
     {
         // frameId -> Scene
         private readonly ConcurrentDictionary<long, Mat> _scenesOfFrame;

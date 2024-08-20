@@ -6,7 +6,7 @@ using StreamSentinel.Entities.MediaLoader;
 
 namespace MediaLoader.OpenCV;
 
-public class VideoLoader : IVideoLoader, IDisposable
+public class VideoLoader : IVideoLoader
 {
     private string _deviceId;
     private VideoCapture _capture;

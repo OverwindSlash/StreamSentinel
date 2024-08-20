@@ -12,7 +12,7 @@ namespace StreamSentinel.Domain.Tests
                 .AddJsonFile("settings.json", true, true)
                 .Build();
 
-            var pipeline = new AnalysisPipeline(config);
+            using var pipeline = new AnalysisPipeline(config);
 
             pipeline.Run();
         }

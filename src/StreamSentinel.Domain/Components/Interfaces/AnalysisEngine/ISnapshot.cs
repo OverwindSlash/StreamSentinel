@@ -3,7 +3,7 @@ using StreamSentinel.Entities.AnalysisEngine;
 
 namespace StreamSentinel.Components.Interfaces.AnalysisEngine
 {
-    public interface ISnapshot
+    public interface ISnapshot : IDisposable
     {
         void TakeSnapshot(Frame frame);
 

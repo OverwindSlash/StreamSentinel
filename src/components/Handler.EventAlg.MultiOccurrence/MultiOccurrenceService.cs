@@ -40,7 +40,7 @@ namespace Handler.EventAlg.MultiOccurrence
                         continue;
                     }
 
-                    if (outterObj.CloseTo(innerObj))
+                    if (outterObj.CloseTo(innerObj, closeThreshold))
                     {
                         string combinedId = $"cb_{outterObj.Id}";
                         float score = (outterObj.Confidence + innerObj.Confidence) / 2;

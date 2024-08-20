@@ -2,7 +2,7 @@
 
 namespace StreamSentinel.Components.Interfaces.EventPublisher
 {
-    public interface IDomainEventPublisher
+    public interface IDomainEventPublisher : IDisposable
     {
         Task<bool> PublishEvent(DomainEventBase domainEvent);
     }

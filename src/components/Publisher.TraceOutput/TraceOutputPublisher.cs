@@ -15,5 +15,10 @@ namespace Publisher.TraceOutput
             
             return true;
         }
+
+        public void Dispose()
+        {
+            // TODO release managed resources here
+        }
     }
 }

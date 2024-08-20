@@ -1,19 +1,13 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.ML.OnnxRuntime;
+using MOT.CORE.Matchers.Abstract;
 using MOT.CORE.Matchers.Deep;
+using MOT.CORE.ReID;
 using MOT.CORE.ReID.Models.Fast_Reid;
 using MOT.CORE.ReID.Models.OSNet;
-using MOT.CORE.ReID;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using StreamSentinel.Components.Interfaces.ObjectTracker;
 using StreamSentinel.Entities.AnalysisEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.ML.OnnxRuntime;
-using MOT.CORE.Matchers.Abstract;
-using OpenCvSharp.Extensions;
 using System.Diagnostics;
 
 namespace Tracker.DeepSortTracker

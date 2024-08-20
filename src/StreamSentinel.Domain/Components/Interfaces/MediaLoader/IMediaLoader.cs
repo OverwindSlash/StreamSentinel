@@ -2,7 +2,7 @@ using StreamSentinel.Entities.AnalysisEngine;
 
 namespace StreamSentinel.Components.Interfaces.MediaLoader;
 
-public interface IMediaLoader
+public interface IMediaLoader : IDisposable
 {
     public string DeviceId { get; }
     public int MediaWidth { get; }
