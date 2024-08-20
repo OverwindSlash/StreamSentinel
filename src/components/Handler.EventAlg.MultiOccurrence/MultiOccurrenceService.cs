@@ -12,11 +12,15 @@ namespace Handler.EventAlg.MultiOccurrence
 
         public string Name => nameof(MultiOccurrenceService);
 
-        private double closeThreshold = 0.2;
+        private readonly double _closeThreshold = 0.2;
+        private string _primaryType = string.Empty;
+        private List<string> _auxiliaryType = new List<string>();
         
         public MultiOccurrenceService(Dictionary<string, string> preferences)
         {
-            closeThreshold = double.Parse(preferences["CloseThreshold"]);
+            _closeThreshold = double.Parse(preferences["CloseThreshold"]);
+            _primaryType = preferences["PrimaryType"];
+            _auxiliaryType = preferences["AuxiliaryType"].Split(',').ToList();
         }
 
         public void SetSnapshot(ISnapshot snapshot)
@@ -31,16 +35,24 @@ namespace Handler.EventAlg.MultiOccurrence
 
         public AnalysisResult Analyze(Frame frame)
         {
-            foreach (var outterObj in frame.DetectedObjects)
+            for (int outterId = 0; outterId < frame.DetectedObjects.Count - 1; outterId++)
             {
-                foreach (var innerObj in frame.DetectedObjects)
+                var outterObj = frame.DetectedObjects[outterId];
+                if (string.Compare(outterObj.Label, _primaryType, StringComparison.InvariantCultureIgnoreCase) != 0)
                 {
-                    if (outterObj == innerObj)
+                    continue;
+                }
+
+                for (int innerId = outterId + 1; innerId < frame.DetectedObjects.Count; innerId++)
+                {
+                    var innerObj = frame.DetectedObjects[innerId];
+
+                    if (!_auxiliaryType.Contains(innerObj.Label.ToLower()))
                     {
                         continue;
                     }
 
-                    if (outterObj.CloseTo(innerObj, closeThreshold))
+                    if (outterObj.CloseTo(innerObj, _closeThreshold))
                     {
                         string combinedId = $"cb_{outterObj.Id}";
                         float score = (outterObj.Confidence + innerObj.Confidence) / 2;

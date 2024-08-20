@@ -124,7 +124,7 @@ namespace Snapshot.InMemory
 
             return _snapshotsByScore[id];
         }
-        
+
         public int GetCachedSnapshotCount()
         {
             return _snapshotsByScore.Count;
@@ -146,7 +146,7 @@ namespace Snapshot.InMemory
             Task.Run(() =>
             {
                 ReleaseSceneByFrameId(value.FrameId);
-            });
+            }).Wait();
         }
 
         private void ReleaseSceneByFrameId(long frameId)
@@ -173,12 +173,12 @@ namespace Snapshot.InMemory
         {
             Task.Run(() =>
             {
-                ReleaseSnapshotsByObjectId(value.Id);
+                ReleaseSnapshotsByObjectId(value.Id, false);
                 ReleaseSnapshotsByObjectId($"cb_{value.Id}");
-            });
+            }).Wait();
         }
 
-        private void ReleaseSnapshotsByObjectId(string id)
+        private void ReleaseSnapshotsByObjectId(string id, bool saveBeforeRelease = true)
         {
             if (!_snapshotsByScore.ContainsKey(id))
             {
@@ -187,10 +187,13 @@ namespace Snapshot.InMemory
 
             SortedList<float, Mat> snapshots = _snapshotsByScore[id];
 
-            var highestScore = snapshots.Keys.Max();
-            Mat highestSnapshot = snapshots[highestScore];
+            if (saveBeforeRelease)
+            {
+                var highestScore = snapshots.Keys.Max();
+                Mat highestSnapshot = snapshots[highestScore];
 
-            SaveBestSnapshot(id, highestSnapshot);
+                SaveBestSnapshot(id, highestSnapshot);
+            }
 
             foreach (Mat snapshot in snapshots.Values)
             {
@@ -202,16 +205,16 @@ namespace Snapshot.InMemory
 
         private void SaveBestSnapshot(string id, Mat highestSnapshot)
         {
-            string timestamp = DateTime.Now.ToString("yyyyMMddhhmmss");
+            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             string filename = id.Replace(':', '_');
             if (highestSnapshot.Width > _minSnapshotWidth && highestSnapshot.Height > _maxSnapshotHeight)
             {
-                highestSnapshot.SaveImage($"{_snapshotsDir}/{timestamp}_{filename}.jpg");
+                highestSnapshot.SaveImage($"{_snapshotsDir}/{filename}_{timestamp}.jpg");
             }
         }
         #endregion
 
-         public void Dispose()
+        public void Dispose()
         {
             foreach (Mat scene in _scenesOfFrame.Values)
             {

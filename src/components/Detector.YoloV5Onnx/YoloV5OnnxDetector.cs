@@ -5,12 +5,14 @@ using OpenCvSharp.Extensions;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Entities.AnalysisEngine;
 using System.Drawing;
+using System.Linq;
 
 namespace Detector.YoloV5Onnx
 {
     public class YoloV5OnnxDetector : IObjectDetector
     {
         private IYoloPredictor _predictor;
+        private List<string> _names = new();
         private List<DetectionObjectType> _detectionEnabledTypes = new();
 
         public void PrepareEnv(Dictionary<string, string>? envParam = null)
@@ -36,13 +38,15 @@ namespace Detector.YoloV5Onnx
 
             _predictor = new YoloPredictor<Yolo640v5>(File.ReadAllBytes(modelPath), option);
 
+            var predictorMetadata = _predictor.Metadata.CustomMetadataMap;
+            var namesData = predictorMetadata["names"];
+            string[] idAndNames = namesData.Split(',');
+            var names = idAndNames.Select(x => x.Split(':')[1]).ToList();
+            names = names.Select(x => x.Trim(new[] { '\'', ' ', '}'})).ToList();
 
             // TODO: Define detection object type in config file.
-            _detectionEnabledTypes.AddRange(new DetectionObjectType[]
-            {
-                DetectionObjectType.Person,
-                DetectionObjectType.Bicycle
-            });
+            _names.Clear();
+            _names.AddRange(names);
 
             // Avoid first time-consuming call in test cases.
             using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
@@ -64,7 +68,7 @@ namespace Detector.YoloV5Onnx
             return GenerateBoundingBoxes(detectedObjects);
         }
 
-        private static List<BoundingBox> GenerateBoundingBoxes(YoloPrediction[] detectedObjects)
+        private List<BoundingBox> GenerateBoundingBoxes(YoloPrediction[] detectedObjects)
         {
             var boundingBoxes = new List<BoundingBox>();
             foreach (var prediction in detectedObjects)
@@ -74,7 +78,7 @@ namespace Detector.YoloV5Onnx
                 var boundingBox = new BoundingBox()
                 {
                     LabelId = (int)prediction.DetectionObjectType,
-                    Label = prediction.DetectionObjectType.ToString(),
+                    Label = _names[(int)prediction.DetectionObjectType - 5],
                     Confidence = prediction.Confidence,
                     X = box.X,
                     Y = box.Y,

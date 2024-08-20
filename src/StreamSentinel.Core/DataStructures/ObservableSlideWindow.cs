@@ -226,7 +226,7 @@ namespace StreamSentinel.DataStructures
                 {
                     NotifyObservers(new ObjectExpiredEvent(detectedObject));
                 }
-
+            
                 NotifyObservers(new FrameExpiredEvent(frame));
             }
         }

@@ -14,11 +14,15 @@ namespace Detector.YoloV5Onnx
         private readonly TYoloModel _yoloModel;
         private readonly InferenceSession _inferenceSession;
 
+        private readonly ModelMetadata _modelMetadata;
+
+        public ModelMetadata Metadata => _modelMetadata;
+
         public YoloPredictor(byte[] model, SessionOptions sessionOptions = null)
         {
             _yoloModel = Activator.CreateInstance<TYoloModel>();
             _inferenceSession = new InferenceSession(model, sessionOptions ?? new SessionOptions());
-            var inferenceSessionModelMetadata = _inferenceSession.ModelMetadata;
+            _modelMetadata = _inferenceSession.ModelMetadata;
         }
 
         public IReadOnlyList<YoloPrediction> Predict(Bitmap image, float targetConfidence, params DetectionObjectType[] targetDetectionTypes)
