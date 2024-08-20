@@ -3,32 +3,28 @@ using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Pipeline;
 using System.Collections.Concurrent;
-using Snapshot.InMemory.DomainEvents;
-using StreamSentinel.Components.Interfaces.EventPublisher;
 
 namespace Snapshot.InMemory
 {
-    public class InMemorySnapshotService : IAnalysisHandler, IDisposable
+    public class InMemorySnapshot : ISnapshot, IObserver<ObjectExpiredEvent>, IObserver<FrameExpiredEvent>, IDisposable
     {
         // frameId -> Scene
         private readonly ConcurrentDictionary<long, Mat> _scenesOfFrame;
 
         // object snapshot list by factor -> (factor, objectMat)
-        private readonly ConcurrentDictionary<string, SortedList<float, Mat>> _snapshotsByConfidence;
+        private readonly ConcurrentDictionary<string, SortedList<float, Mat>> _snapshotsByScore;
 
         private string _snapshotsDir = "Snapshots";
         private int _maxObjectSnapshots = 10;
         private int _minSnapshotWidth = 40;
         private int _maxSnapshotHeight = 40;
 
-        public string Name => nameof(InMemorySnapshotService);
+        public string Name => nameof(InMemorySnapshot);
 
-        private IDomainEventPublisher _domainEventPublisher;
-
-        public InMemorySnapshotService(Dictionary<string, string> preferences)
+        public InMemorySnapshot(Dictionary<string, string> preferences)
         {
             _scenesOfFrame = new ConcurrentDictionary<long, Mat>();
-            _snapshotsByConfidence = new ConcurrentDictionary<string, SortedList<float, Mat>>();
+            _snapshotsByScore = new ConcurrentDictionary<string, SortedList<float, Mat>>();
 
             _snapshotsDir = preferences["SnapshotsDir"];
             _maxObjectSnapshots = int.Parse(preferences["MaxSnapshots"]);
@@ -45,73 +41,18 @@ namespace Snapshot.InMemory
             }
         }
 
-        public void SetDomainEventPublisher(IDomainEventPublisher domainEventPublisher)
+        public void TakeSnapshot(Frame frame)
         {
-            _domainEventPublisher = domainEventPublisher;
-        }
-
-        public AnalysisResult Analyze(Frame frame)
-        {
-            AddSceneByFrameId(frame.FrameId, frame.Scene);
+            AddSceneByFrameId(frame.FrameId, frame);
             AddSnapshotOfObjectById(frame);
-
-            return new AnalysisResult(true);
         }
 
-        private void AddSceneByFrameId(long frameId, Mat sceneImage)
+        public void AddSceneByFrameId(long frameId, Frame frame)
         {
             if (!_scenesOfFrame.ContainsKey(frameId))
             {
-                _scenesOfFrame.TryAdd(frameId, sceneImage);
+                _scenesOfFrame.TryAdd(frameId, frame.Scene);
             }
-        }
-
-        private void AddSnapshotOfObjectById(Frame frame)
-        {
-            foreach (var obj in frame.DetectedObjects)
-            {
-                Mat objSnapshot = frame.Scene.SubMat(new Rect(obj.X, obj.Y, obj.Width, obj.Height)).Clone();
-                AddSnapshotOfObjectById(obj.Id, CalculateFactor(obj), objSnapshot);
-            }
-        }
-
-        private float CalculateFactor(DetectedObject obj)
-        {
-            // Area as order factor.
-            // return obj.Width * obj.Height;
-            return obj.Width;
-        }
-
-        private void AddSnapshotOfObjectById(string id, float confidence, Mat snapshot)
-        {
-            if (!_snapshotsByConfidence.ContainsKey(id))
-            {
-                _snapshotsByConfidence.TryAdd(id, new SortedList<float, Mat>());
-            }
-
-            SortedList<float, Mat> snapshotsById = _snapshotsByConfidence[id];
-            if (!snapshotsById.ContainsKey(confidence))
-            {
-                snapshotsById.Add(confidence, snapshot);
-            }
-            else
-            {
-                snapshotsById[confidence] = snapshot;
-            }
-
-            if (snapshotsById.Count > _maxObjectSnapshots)
-            {
-                for (int i = 0; i < snapshotsById.Count - _maxObjectSnapshots; i++)
-                {
-                    // remove tail (lowest confidence)
-                    snapshotsById.RemoveAt(i);
-                }
-            }
-        }
-
-        public int GetCachedSceneCount()
-        {
-            return _scenesOfFrame.Count;
         }
 
         public Mat GetSceneByFrameId(long frameId)
@@ -125,14 +66,68 @@ namespace Snapshot.InMemory
             return new Mat();
         }
 
+        public int GetCachedSceneCount()
+        {
+            return _scenesOfFrame.Count;
+        }
+
+        public void AddSnapshotOfObjectById(Frame frame)
+        {
+            foreach (var obj in frame.DetectedObjects)
+            {
+                AddSnapshotOfObjectById(obj.Id, CalculateFactor(obj), frame, obj.Bbox);
+            }
+        }
+
+        private float CalculateFactor(DetectedObject obj)
+        {
+            // Area as order factor.
+            // return obj.Width * obj.Height;
+            return obj.Width;
+        }
+
+        public void AddSnapshotOfObjectById(string objId, float score, Frame frame, BoundingBox bboxs)
+        {
+            if (!_snapshotsByScore.ContainsKey(objId))
+            {
+                _snapshotsByScore.TryAdd(objId, new SortedList<float, Mat>());
+            }
+
+            Mat snapshot = frame.Scene.SubMat(new Rect(bboxs.X, bboxs.Y, bboxs.Width, bboxs.Height)).Clone();
+
+            SortedList<float, Mat> snapshotsById = _snapshotsByScore[objId];
+            if (!snapshotsById.ContainsKey(score))
+            {
+                snapshotsById.Add(score, snapshot);
+            }
+            else
+            {
+                snapshotsById[score] = snapshot;
+            }
+
+            if (snapshotsById.Count > _maxObjectSnapshots)
+            {
+                for (int i = 0; i < snapshotsById.Count - _maxObjectSnapshots; i++)
+                {
+                    // remove tail (lowest score)
+                    snapshotsById.RemoveAt(i);
+                }
+            }
+        }
+
         public SortedList<float, Mat> GetObjectSnapshotsByObjectId(string id)
         {
-            if (!_snapshotsByConfidence.ContainsKey(id))
+            if (!_snapshotsByScore.ContainsKey(id))
             {
                 return new SortedList<float, Mat>();
             }
 
-            return _snapshotsByConfidence[id];
+            return _snapshotsByScore[id];
+        }
+        
+        public int GetCachedSnapshotCount()
+        {
+            return _snapshotsByScore.Count;
         }
 
         #region Observer Handlers
@@ -179,20 +174,21 @@ namespace Snapshot.InMemory
             Task.Run(() =>
             {
                 ReleaseSnapshotsByObjectId(value.Id);
+                ReleaseSnapshotsByObjectId($"cb_{value.Id}");
             });
         }
 
         private void ReleaseSnapshotsByObjectId(string id)
         {
-            if (!_snapshotsByConfidence.ContainsKey(id))
+            if (!_snapshotsByScore.ContainsKey(id))
             {
                 return;
             }
 
-            SortedList<float, Mat> snapshots = _snapshotsByConfidence[id];
+            SortedList<float, Mat> snapshots = _snapshotsByScore[id];
 
-            var highestConfidence = snapshots.Keys.Max();
-            Mat highestSnapshot = snapshots[highestConfidence];
+            var highestScore = snapshots.Keys.Max();
+            Mat highestSnapshot = snapshots[highestScore];
 
             SaveBestSnapshot(id, highestSnapshot);
 
@@ -201,10 +197,7 @@ namespace Snapshot.InMemory
                 snapshot.Dispose();
             }
 
-            _snapshotsByConfidence.TryRemove(id, out var removedSnapshots);
-
-            var snapshotsCleaned = new SnapshotsCleanedEvent(Name, id);
-            _domainEventPublisher.PublishEvent(snapshotsCleaned);
+            _snapshotsByScore.TryRemove(id, out var removedSnapshots);
         }
 
         private void SaveBestSnapshot(string id, Mat highestSnapshot)

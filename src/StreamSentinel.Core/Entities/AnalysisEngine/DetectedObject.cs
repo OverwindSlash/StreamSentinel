@@ -105,6 +105,29 @@ public class DetectedObject : IDisposable, IPrediction
         return (float)Math.Sqrt(dx * dx + dy * dy);
     }
 
+    public BoundingBox CombineBoundingBox(DetectedObject other)
+    {
+        int minX = Math.Min(this.X, other.X);
+        int minY = Math.Min(this.Y, other.Y);
+
+        int maxX = Math.Max(this.Right, other.Right);
+        int maxY = Math.Max(this.Bottom, other.Bottom);
+
+        var boundingBox = new BoundingBox()
+        {
+            X = minX,
+            Y = minY,
+            Width = maxX - minX,
+            Height = maxY - minY,
+            Confidence = (this.Confidence + other.Confidence) / 2,
+            Label = $"{this.Label}+{other.Label}",
+            LabelId = -1,
+            TrackingId = 0
+        };
+
+        return boundingBox;
+    }
+
     public void Dispose()
     {
         Snapshot?.Dispose();

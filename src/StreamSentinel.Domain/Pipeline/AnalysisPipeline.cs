@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenCvSharp;
 using StreamSentinel.Components.Interfaces.AnalysisEngine;
+using StreamSentinel.Components.Interfaces.EventPublisher;
 using StreamSentinel.Components.Interfaces.MediaLoader;
 using StreamSentinel.Components.Interfaces.ObjectDetector;
 using StreamSentinel.Components.Interfaces.ObjectTracker;
@@ -12,7 +13,6 @@ using StreamSentinel.Entities.Events.Pipeline;
 using StreamSentinel.Entities.Geometric;
 using StreamSentinel.Pipeline.Settings;
 using System.Reflection;
-using StreamSentinel.Components.Interfaces.EventPublisher;
 
 namespace StreamSentinel.Pipeline
 {
@@ -28,8 +28,10 @@ namespace StreamSentinel.Pipeline
         private readonly DetectorSettings _detectorSettings;
         private readonly RegionManagerSettings _regionManagerSettings;
         private readonly TrackerSettings _trackerSettings;
-        private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
+        private readonly SnapshotSettings _snapshotSettings;
         private readonly PublisherSettings _publisherSettings;
+        private readonly List<AnalysisHandlerSettings> _analysisHandlerSettings;
+        
 
         private readonly ObservableSlideWindow _slideWindow;
         private readonly VideoFrameBuffer _analyzedFrameBuffer;
@@ -38,6 +40,7 @@ namespace StreamSentinel.Pipeline
         private IObjectDetector _objectDetector;
         private IRegionManager _regionManager;
         private IObjectTracker _objectTracker;
+        private ISnapshot _snapshot;
         private IDomainEventPublisher _domainEventPublisher;
         private List<IAnalysisHandler> _analysisHandlers;
         
@@ -76,10 +79,18 @@ namespace StreamSentinel.Pipeline
             //     _trackerSettings.AssemblyFile, _trackerSettings.FullQualifiedClassName);
             _services.AddTransient<IObjectTracker>(sp => tracker);
 
+            _snapshotSettings = config.GetSection("Snapshot").Get<SnapshotSettings>();
+            var snapshot = CreateInstance<ISnapshot>(
+                _snapshotSettings.AssemblyFile, _snapshotSettings.FullQualifiedClassName, new object?[] { _snapshotSettings.Preferences });
+
             _publisherSettings = config.GetSection("Publisher").Get<PublisherSettings>();
             var publisher = CreateInstance<IDomainEventPublisher>(
                 _publisherSettings.AssemblyFile, _publisherSettings.FullQualifiedClassName);
             _services.AddTransient<IDomainEventPublisher>(sp => publisher);
+
+            _slideWindow.Subscribe((IObserver<FrameExpiredEvent>)snapshot);
+            _slideWindow.Subscribe((IObserver<ObjectExpiredEvent>)snapshot);
+            _services.AddTransient<ISnapshot>(sp => snapshot);
 
             _analysisHandlerSettings = config.GetSection("AnalysisHandlers").Get<List<AnalysisHandlerSettings>>();
             foreach (var setting in _analysisHandlerSettings)
@@ -128,9 +139,12 @@ namespace StreamSentinel.Pipeline
 
             _objectTracker = _provider.GetService<IObjectTracker>();
 
+            _snapshot = _provider.GetService<ISnapshot>();
+
             _domainEventPublisher = _provider.GetService<IDomainEventPublisher>();
 
             _analysisHandlers = _provider.GetServices<IAnalysisHandler>().ToList();
+            _analysisHandlers.ForEach(handler => { handler.SetSnapshot(_snapshot); });
             _analysisHandlers.ForEach(handler => { handler.SetDomainEventPublisher(_domainEventPublisher); });
 
             var analysisTask = Task.Run(() =>
@@ -141,6 +155,7 @@ namespace StreamSentinel.Pipeline
                     frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
                     _regionManager.CalcRegionProperties(frame.DetectedObjects);
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
+                    _snapshot.TakeSnapshot(frame);
                     var analyzedFrame = Analyze(frame);
                     PushAanlysisResults(analyzedFrame);
                 }

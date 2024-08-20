@@ -1,5 +1,4 @@
-﻿using OpenCvSharp;
-using StreamSentinel.Components.Interfaces.AnalysisEngine;
+﻿using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Components.Interfaces.EventPublisher;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Pipeline;
@@ -8,12 +7,21 @@ namespace Handler.EventAlg.MultiOccurrence
 {
     public class MultiOccurrenceService : IAnalysisHandler, IDisposable
     {
-        public string Name => nameof(MultiOccurrenceService);
-
+        private ISnapshot _snapshot;
         private IDomainEventPublisher _domainEventPublisher;
 
-        public MultiOccurrenceService()
+        public string Name => nameof(MultiOccurrenceService);
+
+        private double closeThreshold = 0.2;
+        
+        public MultiOccurrenceService(Dictionary<string, string> preferences)
         {
+            closeThreshold = double.Parse(preferences["CloseThreshold"]);
+        }
+
+        public void SetSnapshot(ISnapshot snapshot)
+        {
+            _snapshot = snapshot;
         }
 
         public void SetDomainEventPublisher(IDomainEventPublisher domainEventPublisher)
@@ -32,9 +40,17 @@ namespace Handler.EventAlg.MultiOccurrence
                         continue;
                     }
 
-
+                    if (outterObj.CloseTo(innerObj))
+                    {
+                        string combinedId = $"cb_{outterObj.Id}";
+                        float score = (outterObj.Confidence + innerObj.Confidence) / 2;
+                        BoundingBox bbox = outterObj.CombineBoundingBox(innerObj);
+                        _snapshot.AddSnapshotOfObjectById(combinedId, score, frame, bbox);
+                    }
                 }
             }
+
+            return new AnalysisResult(true);
         }
 
         #region Observer Handlers
@@ -50,7 +66,7 @@ namespace Handler.EventAlg.MultiOccurrence
 
         public void OnNext(FrameExpiredEvent value)
         {
-            throw new NotImplementedException();
+            // Do nothing
         }
 
         void IObserver<FrameExpiredEvent>.OnCompleted()
@@ -65,15 +81,14 @@ namespace Handler.EventAlg.MultiOccurrence
 
         public void OnNext(ObjectExpiredEvent value)
         {
-            throw new NotImplementedException();
+            // Do nothing
         }
-        
         #endregion
-        
+
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

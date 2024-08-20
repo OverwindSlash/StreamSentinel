@@ -8,7 +8,9 @@ namespace StreamSentinel.Components.Interfaces.AnalysisEngine
     {
         public string Name { get; }
 
+        void SetSnapshot(ISnapshot snapshot);
         void SetDomainEventPublisher(IDomainEventPublisher domainEventPublisher);
+
         AnalysisResult Analyze(Frame frame);
     }
 }

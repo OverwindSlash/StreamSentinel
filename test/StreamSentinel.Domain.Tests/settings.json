@@ -27,19 +27,6 @@
       75
     ]
   },
-  "AnalysisHandlers": [
-    {
-      "AssemblyFile": "Snapshot.InMemory.dll",
-      "FullQualifiedClassName": "Snapshot.InMemory.InMemorySnapshotService",
-      "Parameters": [],
-      "Preferences": {
-        "SnapshotsDir": "Snapshots",
-        "MaxSnapshots": 10,
-        "MinSnapshotWidth": 200,
-        "MinSnapshotHeight": 20
-      }
-    }
-  ],
   "RegionManager": {
     "AssemblyFile": "RegionManager.DefinitionBased.dll",
     "FullQualifiedClassName": "RegionManager.DefinitionBased.DefinitionBasedRegionManager",
@@ -47,9 +34,30 @@
       "default.json"
     ]
   },
+  "Snapshot": {
+    "AssemblyFile": "Snapshot.InMemory.dll",
+    "FullQualifiedClassName": "Snapshot.InMemory.InMemorySnapshot",
+    "Parameters": [],
+    "Preferences": {
+      "SnapshotsDir": "Snapshots",
+      "MaxSnapshots": 10,
+      "MinSnapshotWidth": 200,
+      "MinSnapshotHeight": 20
+    }
+  },
   "Publisher": {
     "AssemblyFile": "Publisher.TraceOutput.dll",
     "FullQualifiedClassName": "Publisher.TraceOutput.TraceOutputPublisher",
     "Parameters": []
-  }
+  },
+  "AnalysisHandlers": [
+    {
+      "AssemblyFile": "Handler.EventAlg.MultiOccurrence.dll",
+      "FullQualifiedClassName": "Handler.EventAlg.MultiOccurrence.MultiOccurrenceService",
+      "Parameters": [],
+      "Preferences": {
+        "CloseThreshold": 0.3
+      }
+    }
+  ]
 }
