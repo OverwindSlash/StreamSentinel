@@ -26,3 +26,4 @@ aspnet-core/docker/mvc/Mvc-Logs/
 *.weights
 /src/components/Detector.YoloV5Onnx/Models/best.onnx
 /src/components/Detector.YoloV5Onnx/Models/yolov5x.onnx
+/src/StreamSentinel.Web.Host/App_Data/Logs/Logs.txt
