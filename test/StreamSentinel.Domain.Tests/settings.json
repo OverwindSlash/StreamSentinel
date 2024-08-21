@@ -1,6 +1,6 @@
 {
   "Pipeline": {
-    "Uri": "D:\\Video\\CastingNet\\01.mp4"
+    "Uri": "D:\\Video\\CastingNet\\12.mp4"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
@@ -57,8 +57,8 @@
       "Parameters": [],
       "Preferences": {
         "CloseThreshold": 0.2,
-        "PrimaryType": "person",
-        "AuxiliaryType": "net,person"
+        "PrimaryType": "net",
+        "AuxiliaryType": "person"
       }
     }
   ]

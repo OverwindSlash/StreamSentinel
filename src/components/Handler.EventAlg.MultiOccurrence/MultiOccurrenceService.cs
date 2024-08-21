@@ -1,6 +1,7 @@
 ﻿using StreamSentinel.Components.Interfaces.AnalysisEngine;
 using StreamSentinel.Components.Interfaces.EventPublisher;
 using StreamSentinel.Entities.AnalysisEngine;
+using StreamSentinel.Entities.Events.Algorithm;
 using StreamSentinel.Entities.Events.Pipeline;
 
 namespace Handler.EventAlg.MultiOccurrence
@@ -58,6 +59,10 @@ namespace Handler.EventAlg.MultiOccurrence
                         float score = (outterObj.Confidence + innerObj.Confidence) / 2;
                         BoundingBox bbox = outterObj.CombineBoundingBox(innerObj);
                         _snapshot.AddSnapshotOfObjectById(combinedId, score, frame, bbox);
+
+                        var snapshots = _snapshot.GetObjectSnapshotsByObjectId(combinedId);
+                        var multiOccurenceEvent = new MultiOccurenceEvent(new List<string>() { outterObj.Label, innerObj.Label}, snapshots[score]);
+                        _domainEventPublisher.PublishEvent(multiOccurenceEvent);
                     }
                 }
             }
