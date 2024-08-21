@@ -6,18 +6,18 @@ using StreamSentinel.Entities.Events.Pipeline;
 
 namespace Handler.EventAlg.MultiOccurrence
 {
-    public class MultiOccurrenceService : IAnalysisHandler, IDisposable
+    public class MultiOccurrenceAlg : IAnalysisHandler, IDisposable
     {
         private ISnapshot _snapshot;
         private IDomainEventPublisher _domainEventPublisher;
 
-        public string Name => nameof(MultiOccurrenceService);
+        public string Name => nameof(MultiOccurrenceAlg);
 
         private readonly double _closeThreshold = 0.2;
         private string _primaryType = string.Empty;
         private List<string> _auxiliaryType = new List<string>();
         
-        public MultiOccurrenceService(Dictionary<string, string> preferences)
+        public MultiOccurrenceAlg(Dictionary<string, string> preferences)
         {
             _closeThreshold = double.Parse(preferences["CloseThreshold"]);
             _primaryType = preferences["PrimaryType"];
@@ -36,32 +36,39 @@ namespace Handler.EventAlg.MultiOccurrence
 
         public AnalysisResult Analyze(Frame frame)
         {
-            for (int outterId = 0; outterId < frame.DetectedObjects.Count - 1; outterId++)
+            for (int primaryId = 0; primaryId < frame.DetectedObjects.Count; primaryId++)
             {
-                var outterObj = frame.DetectedObjects[outterId];
-                if (string.Compare(outterObj.Label, _primaryType, StringComparison.InvariantCultureIgnoreCase) != 0)
+                var primaryObj = frame.DetectedObjects[primaryId];
+                if (string.Compare(primaryObj.Label, _primaryType, StringComparison.InvariantCultureIgnoreCase) != 0)
                 {
                     continue;
                 }
 
-                for (int innerId = outterId + 1; innerId < frame.DetectedObjects.Count; innerId++)
+                for (int auxiliaryId = 0; auxiliaryId < frame.DetectedObjects.Count; auxiliaryId++)
                 {
-                    var innerObj = frame.DetectedObjects[innerId];
+                    var auxiliaryObj = frame.DetectedObjects[auxiliaryId];
 
-                    if (!_auxiliaryType.Contains(innerObj.Label.ToLower()))
+                    if (primaryObj == auxiliaryObj)
                     {
                         continue;
                     }
 
-                    if (outterObj.CloseTo(innerObj, _closeThreshold))
+                    if (!_auxiliaryType.Contains(auxiliaryObj.Label.ToLower()))
                     {
-                        string combinedId = $"cb_{outterObj.Id}";
-                        float score = (outterObj.Confidence + innerObj.Confidence) / 2;
-                        BoundingBox bbox = outterObj.CombineBoundingBox(innerObj);
+                        continue;
+                    }
+
+                    if (primaryObj.CloseTo(auxiliaryObj, _closeThreshold))
+                    {
+                        string combinedId = $"cb_{primaryObj.Id}";
+                        BoundingBox bbox = primaryObj.CombineBoundingBox(auxiliaryObj);
+                        //float score = (outterObj.Confidence + innerObj.Confidence) / 2;
+                        float score = bbox.Width;
                         _snapshot.AddSnapshotOfObjectById(combinedId, score, frame, bbox);
 
-                        var snapshots = _snapshot.GetObjectSnapshotsByObjectId(combinedId);
-                        var multiOccurenceEvent = new MultiOccurenceEvent(new List<string>() { outterObj.Label, innerObj.Label}, snapshots[score]);
+                        var snapshot = _snapshot.TakeSnapshot(frame, bbox);
+                        var multiOccurenceEvent = new MultiOccurenceEvent(
+                            new List<string>() { primaryObj.Label, auxiliaryObj.Label}, combinedId, snapshot);
                         _domainEventPublisher.PublishEvent(multiOccurenceEvent);
                     }
                 }

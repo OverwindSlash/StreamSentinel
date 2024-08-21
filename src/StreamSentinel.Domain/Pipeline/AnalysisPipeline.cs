@@ -153,7 +153,7 @@ namespace StreamSentinel.Pipeline
                     frame.AddBoundingBoxes(_objectDetector.Detect(frame.Scene, _detectorSettings.Thresh));
                     _regionManager.CalcRegionProperties(frame.DetectedObjects);
                     _objectTracker.Track(frame.Scene, frame.DetectedObjects);
-                    _snapshot.TakeSnapshot(frame);
+                    _snapshot.ProcessSnapshots(frame);
                     var analyzedFrame = Analyze(frame);
                     PushAanlysisResults(analyzedFrame);
                 }

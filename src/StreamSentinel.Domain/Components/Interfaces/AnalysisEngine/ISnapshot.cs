@@ -5,7 +5,7 @@ namespace StreamSentinel.Components.Interfaces.AnalysisEngine
 {
     public interface ISnapshot : IDisposable
     {
-        void TakeSnapshot(Frame frame);
+        void ProcessSnapshots(Frame frame);
 
         void AddSceneByFrameId(long frameId, Frame frame);
         public Mat GetSceneByFrameId(long frameId);
@@ -15,5 +15,7 @@ namespace StreamSentinel.Components.Interfaces.AnalysisEngine
         void AddSnapshotOfObjectById(string objId, float score, Frame frame, BoundingBox bboxs);
         public SortedList<float, Mat> GetObjectSnapshotsByObjectId(string objId);
         public int GetCachedSnapshotCount();
+
+        Mat TakeSnapshot(Frame frame, BoundingBox bboxs);
     }
 }

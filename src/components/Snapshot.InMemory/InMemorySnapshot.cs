@@ -41,7 +41,7 @@ namespace Snapshot.InMemory
             }
         }
 
-        public void TakeSnapshot(Frame frame)
+        public void ProcessSnapshots(Frame frame)
         {
             AddSceneByFrameId(frame.FrameId, frame);
             AddSnapshotOfObjectById(frame);
@@ -93,7 +93,7 @@ namespace Snapshot.InMemory
                 _snapshotsByScore.TryAdd(objId, new SortedList<float, Mat>());
             }
 
-            Mat snapshot = frame.Scene.SubMat(new Rect(bboxs.X, bboxs.Y, bboxs.Width, bboxs.Height)).Clone();
+            Mat snapshot = TakeSnapshot(frame, bboxs);
 
             SortedList<float, Mat> snapshotsById = _snapshotsByScore[objId];
             if (!snapshotsById.ContainsKey(score))
@@ -128,6 +128,11 @@ namespace Snapshot.InMemory
         public int GetCachedSnapshotCount()
         {
             return _snapshotsByScore.Count;
+        }
+
+        public Mat TakeSnapshot(Frame frame, BoundingBox bboxs)
+        {
+            return frame.Scene.SubMat(new Rect(bboxs.X, bboxs.Y, bboxs.Width, bboxs.Height)).Clone();
         }
 
         #region Observer Handlers

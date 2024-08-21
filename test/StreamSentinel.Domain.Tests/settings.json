@@ -1,6 +1,6 @@
 {
   "Pipeline": {
-    "Uri": "D:\\Video\\CastingNet\\12.mp4"
+    "Uri": "D:\\Video\\CastingNet\\13.mp4"
   },
   "MediaLoader": {
     "AssemblyFile": "MediaLoader.OpenCV.dll",
@@ -41,8 +41,8 @@
     "Preferences": {
       "SnapshotsDir": "Snapshots",
       "MaxSnapshots": 10,
-      "MinSnapshotWidth": 40,
-      "MinSnapshotHeight": 40
+      "MinSnapshotWidth": 50,
+      "MinSnapshotHeight": 50
     }
   },
   "Publisher": {
@@ -53,10 +53,10 @@
   "AnalysisHandlers": [
     {
       "AssemblyFile": "Handler.EventAlg.MultiOccurrence.dll",
-      "FullQualifiedClassName": "Handler.EventAlg.MultiOccurrence.MultiOccurrenceService",
+      "FullQualifiedClassName": "Handler.EventAlg.MultiOccurrence.MultiOccurrenceAlg",
       "Parameters": [],
       "Preferences": {
-        "CloseThreshold": 0.2,
+        "CloseThreshold": 0.5,
         "PrimaryType": "net",
         "AuxiliaryType": "person"
       }
