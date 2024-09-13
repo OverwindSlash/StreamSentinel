@@ -7,8 +7,8 @@ namespace Snapshot.InMemory.DomainEvents
     {
         public string ObjectId { get; set; }
 
-        public SnapshotsCleanedEvent(string handlerName, string objectId)
-            : base(nameof(SnapshotsCleanedEvent), handlerName)
+        public SnapshotsCleanedEvent(string message, string handlerName, string objectId)
+            : base(nameof(SnapshotsCleanedEvent), message, handlerName)
         {
             ObjectId = objectId;
         }

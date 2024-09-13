@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\components\Detector.YoloV5Onnx\Detector.YoloV5Onnx.csproj" />
+    <ProjectReference Include="..\components\Handler.EventAlg.MultiOccurrence\Handler.EventAlg.MultiOccurrence.csproj" />
+    <ProjectReference Include="..\components\MediaLoader.OpenCV\MediaLoader.OpenCV.csproj" />
+    <ProjectReference Include="..\components\Publisher.TraceOutput\Publisher.TraceOutput.csproj" />
+    <ProjectReference Include="..\components\RegionChecker.DefinitionBased\RegionManager.DefinitionBased.csproj" />
+    <ProjectReference Include="..\components\Snapshot.InMemory\Snapshot.InMemory.csproj" />
+    <ProjectReference Include="..\components\Tracker.SortTracker\Tracker.SortTracker.csproj" />
+    <ProjectReference Include="..\StreamSentinel.Domain\StreamSentinel.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="default.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\Traffic_001.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

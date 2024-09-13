@@ -3,6 +3,7 @@ using StreamSentinel.Components.Interfaces.EventPublisher;
 using StreamSentinel.Entities.AnalysisEngine;
 using StreamSentinel.Entities.Events.Algorithm;
 using StreamSentinel.Entities.Events.Pipeline;
+using System.Xml.Linq;
 
 namespace Handler.EventAlg.MultiOccurrence
 {
@@ -13,12 +14,16 @@ namespace Handler.EventAlg.MultiOccurrence
 
         public string Name => nameof(MultiOccurrenceAlg);
 
+        private readonly string _name;
+        private readonly string _message;
         private readonly double _closeThreshold = 0.2;
         private string _primaryType = string.Empty;
         private List<string> _auxiliaryType = new List<string>();
         
         public MultiOccurrenceAlg(Dictionary<string, string> preferences)
         {
+            _name = preferences["EventName"];
+            _message = preferences["EventMessage"];
             _closeThreshold = double.Parse(preferences["CloseThreshold"]);
             _primaryType = preferences["PrimaryType"];
             _auxiliaryType = preferences["AuxiliaryType"].Split(',').ToList();
@@ -68,7 +73,12 @@ namespace Handler.EventAlg.MultiOccurrence
 
                         var snapshot = _snapshot.TakeSnapshot(frame, bbox);
                         var multiOccurenceEvent = new MultiOccurenceEvent(
-                            new List<string>() { primaryObj.Label, auxiliaryObj.Label}, combinedId, snapshot);
+                            eventName:_name,
+                            eventMessage:_message,
+                            handlerName: _name,
+                            objTypes: new List<string>() { primaryObj.Label, auxiliaryObj.Label},
+                            snapshotId: combinedId, 
+                            snapshot: snapshot);
                         _domainEventPublisher.PublishEvent(multiOccurenceEvent);
                     }
                 }

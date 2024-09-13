@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using OpenCvSharp;
+﻿using OpenCvSharp;
 using StreamSentinel.Entities.Events.Domain;
+using System.Collections.Generic;
 
 namespace StreamSentinel.Entities.Events.Algorithm
 {
@@ -11,13 +11,13 @@ namespace StreamSentinel.Entities.Events.Algorithm
         public Mat Snapshot { get; private set; }
 
         public MultiOccurenceEvent(List<string> objTypes, string snapshotId, Mat snapshot)
-            : this("MultiOccurrence Event", "Unknown", objTypes, snapshotId, snapshot)
+            : this("MultiOccurrence Event", "Unknown", "Unknown", objTypes, snapshotId, snapshot)
         {
             
         }
 
-        public MultiOccurenceEvent(string eventName, string handlerName, List<string> objTypes, string snapshotId, Mat snapshot) 
-            : base(eventName, handlerName)
+        public MultiOccurenceEvent(string eventName, string eventMessage, string handlerName, List<string> objTypes, string snapshotId, Mat snapshot) 
+            : base(eventName, eventMessage, handlerName)
         {
             ObjTypes = objTypes;
             SnapshotId = snapshotId;

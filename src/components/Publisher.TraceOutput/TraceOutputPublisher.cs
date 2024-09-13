@@ -1,7 +1,6 @@
 ﻿using StreamSentinel.Components.Interfaces.EventPublisher;
-using StreamSentinel.Entities.Events.Domain;
-using System.Diagnostics;
 using StreamSentinel.Entities.Events.Algorithm;
+using StreamSentinel.Entities.Events.Domain;
 
 namespace Publisher.TraceOutput
 {
@@ -11,14 +10,22 @@ namespace Publisher.TraceOutput
         {
             await Task.Run(() =>
             {
-                Trace.WriteLine($"{domainEvent.Timestamp.ToLongTimeString()} {domainEvent.EventName} {domainEvent.GetDetail()}");
+                Console.WriteLine($"{domainEvent.Timestamp.ToLongTimeString()} Event:{domainEvent.EventName} Message:{domainEvent.Message}");
 
                 var @event = domainEvent as MultiOccurenceEvent;
                 if (@event != null)
                 {
                     string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string filename = @event.SnapshotId.Replace(':', '_');
-                    @event.Snapshot.SaveImage($"Snapshots/Events/{filename}_{timestamp}.jpg");
+
+                    string eventDir = $"Snapshots/Events";
+
+                    if (!Directory.Exists(eventDir))
+                    {
+                        Directory.CreateDirectory(eventDir);
+                    }
+
+                    @event.Snapshot.SaveImage($"{eventDir}/{filename}_{timestamp}.jpg");
                 }
             });
             

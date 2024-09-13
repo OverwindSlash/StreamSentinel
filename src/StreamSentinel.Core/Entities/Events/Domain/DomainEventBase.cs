@@ -8,21 +8,24 @@ namespace StreamSentinel.Entities.Events.Domain
         private readonly DateTime _timestamp;
         private readonly string _eventName;
         private readonly string _handlerName;
+        private readonly string _message;
 
         public Guid EventId => _eventId;
         public DateTime Timestamp => _timestamp;
         public string EventName => _eventName;
         public string HandlerName => _handlerName;
+        public string Message => _message;
 
         public DomainEventBase()
-            : this(nameof(DomainEventBase), "Unknown") 
+            : this(nameof(DomainEventBase), "Unknown", "Unknown") 
         { }
 
-        public DomainEventBase(string eventName, string handlerName)
+        public DomainEventBase(string eventName, string eventMessage, string handlerName)
         {
             _eventId = Guid.NewGuid();
             _timestamp = DateTime.Now;
             _eventName = eventName;
+            _message = eventMessage;
             _handlerName = handlerName;
         }
 
