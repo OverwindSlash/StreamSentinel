@@ -1,4 +1,5 @@
-﻿using Detector.YoloV5Onnx.Models;
+﻿using System.Diagnostics;
+using Detector.YoloV5Onnx.Models;
 using Detector.YoloV5Onnx.Utils;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;

@@ -49,8 +49,8 @@ namespace Detector.YoloV5Onnx
             _names.AddRange(names);
 
             // Avoid first time-consuming call in test cases.
-            using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
-            Detect(mat, 0.3F);
+            // using var mat = new Mat("Images/Traffic_001.jpg", ImreadModes.Color);
+            // Detect(mat, 0.3F);
         }
 
         public int GetClassNumber()
